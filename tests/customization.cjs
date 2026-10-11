@@ -1,0 +1,45 @@
+const { chromium } = require(process.env.PLAYWRIGHT_PATH || '/Users/sunyifeng/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const assert = require('node:assert/strict');
+(async () => {
+ const browser = await chromium.launch({headless:true, channel:"chrome"});
+ const page = await browser.newPage({viewport:{width:1280,height:800}});
+ const errors=[]; page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('http://127.0.0.1:8765');
+ await page.waitForSelector('#menu.show');
+ assert.equal(await page.locator('#scenes button').count(),3,'three selectable scenes');
+ await page.getByRole('button',{name:'海滨大道',exact:false}).click();
+ await page.getByRole('button',{name:'机动警察',exact:false}).click();
+ await page.reload(); await page.waitForSelector('#menu.show');
+ assert.equal(await page.locator('#scenes button[aria-pressed="true"]').getAttribute('data-id'),'coast');
+ assert.equal(await page.locator('#officers button[aria-pressed="true"]').getAttribute('data-id'),'motor');
+ await page.locator('#startBtn').click(); await page.waitForTimeout(3400);
+ assert.equal((await page.evaluate(()=>window.__kcState())).state,'play');
+ assert.equal((await page.evaluate(()=>window.__kcState())).copVisible,true,'selected officer remains in the scene');
+ await page.keyboard.press('Escape'); assert.equal((await page.evaluate(()=>window.__kcState())).state,'pause');
+ await page.keyboard.press('Escape');
+ await page.getByRole('button',{name:'城市街道',exact:false}).click();
+ await page.getByRole('button',{name:'经典警察',exact:false}).click();
+ await page.getByRole('button',{name:'海滨大道',exact:false}).click();
+ await page.getByRole('button',{name:'巡逻警察',exact:false}).click();
+ await page.getByRole('button',{name:'林间小镇',exact:false}).click();
+ await page.reload(); await page.waitForSelector('#menu.show');
+ assert.equal((await page.evaluate(()=>window.__kcState())).scene,'forest');
+ await page.locator('#startBtn').click(); await page.waitForTimeout(3400);
+ for(let i=0;i<65;i++){
+  const s=await page.evaluate(()=>window.__kcState()); if(s.state!=='play') break;
+  const ch=s.line[s.idx]; await page.keyboard.press(ch===' '?'Space':ch);
+  await page.waitForTimeout(50);
+ }
+ await page.waitForSelector('#result.show');
+ assert.match(await page.locator('#rTitle').textContent(),/抓到/);
+ await page.evaluate(()=>localStorage.setItem('kc-settings',JSON.stringify({scene:'removed',officer:'removed'})));
+ await page.reload(); await page.waitForSelector('#menu.show');
+ assert.equal((await page.evaluate(()=>window.__kcState())).scene,'city');
+ assert.equal((await page.evaluate(()=>window.__kcState())).officer,'classic');
+ await page.setViewportSize({width:960,height:620});
+ await page.locator('#startBtn').click(); await page.waitForTimeout(3400);
+ assert.equal((await page.evaluate(()=>window.__kcState())).state,'play');
+ assert.deepEqual(errors,[]);
+ console.log('PASS: scene / officer selection, persistence, repeated switching, pause, capture, stale settings fallback, minimum window, no page errors');
+ await browser.close();
+})().catch(e=>{console.error(e);process.exit(1)});

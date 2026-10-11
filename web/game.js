@@ -1,5 +1,7 @@
 // 键盘小警察 · 3D 版：游戏逻辑、HUD、声音
 import { World, COP_X, THIEF_X } from './world.js';
+import { SCENES, OFFICERS, validChoice } from './customization.js';
+let previews = null;
 
 // ---------- 关卡与难度 ----------
 const LESSONS = [
@@ -201,6 +203,8 @@ const G = {
 const saved = store('kc-settings') || {};
 G.lesson = clamp(saved.lesson | 0, 0, LESSONS.length - 1);
 G.diff = clamp(saved.diff | 0, 0, DIFFS.length - 1);
+G.scene = validChoice(SCENES, saved.scene);
+G.officer = validChoice(OFFICERS, saved.officer);
 Music.on = saved.music !== false;
 const best = store('kc-best') || {};
 
@@ -230,6 +234,7 @@ function startGame() {
   audio(); Music.start(); Music.setLevel(0.55);
   SFX.click();
   saveSettings();
+  world.setAppearance(G.scene, G.officer);
   hideAll();
   Object.assign(G, {
     state: 'ready', timer: 2.99, gap: START_GAP, shown: START_GAP, idx: 0,
@@ -546,9 +551,25 @@ function renderHud() {
 // ---------- 菜单与结果 ----------
 const $ = id => document.getElementById(id);
 function hideAll() { ['menu', 'result', 'pause'].forEach(id => $(id).classList.remove('show')); }
-function saveSettings() { store('kc-settings', { lesson: G.lesson, diff: G.diff, music: Music.on }); }
+function saveSettings() { store('kc-settings', { lesson: G.lesson, diff: G.diff, music: Music.on, scene: G.scene, officer: G.officer }); }
+
+function renderAppearance() {
+  for (const [id, items, field] of [['scenes', SCENES, 'scene'], ['officers', OFFICERS, 'officer']]) {
+    const container = $(id); container.replaceChildren();
+    for (const item of items) {
+      const button = document.createElement('button'); button.type = 'button'; button.className = 'appearance-card';
+      button.dataset.id = item.id; button.setAttribute('aria-pressed', String(G[field] === item.id));
+      const img = document.createElement('img'); img.src = previews[id][item.id]; img.alt = ''; button.appendChild(img);
+      const name = document.createElement('b'); name.textContent = item.name; button.appendChild(name);
+      const note = document.createElement('small'); note.textContent = item.note; button.appendChild(note);
+      button.onclick = () => { audio(); SFX.select(); G[field] = item.id; saveSettings(); world.setAppearance(G.scene,G.officer); G.snap=true; renderAppearance(); };
+      container.appendChild(button);
+    }
+  }
+}
 
 function renderMenu() {
+  if (previews) renderAppearance();
   const lw = $('lessons'); lw.innerHTML = '';
   LESSONS.forEach((L, i) => {
     const el = document.createElement('div');
@@ -655,7 +676,7 @@ window.addEventListener('keydown', e => {
 });
 
 // 给 Mac 外壳的自检读状态用
-window.__kcState = () => ({ state: G.state, idx: G.idx, line: G.line, correct: G.correct, wrong: G.wrong, gap: +G.gap.toFixed(1), sfx: Object.keys(sfxBuf).length, audio: AC ? AC.state : 'none' });
+window.__kcState = () => ({ scene: G.scene, officer: G.officer, copVisible: !!world.cop?.root.parent && world.cop.root.visible, state: G.state, idx: G.idx, line: G.line, correct: G.correct, wrong: G.wrong, gap: +G.gap.toFixed(1), sfx: Object.keys(sfxBuf).length, audio: AC ? AC.state : 'none' });
 
 // ---------- 主循环 ----------
 let last = performance.now();
@@ -680,6 +701,8 @@ async function boot() {
     $('loadText').textContent = '加载失败：' + err.message;
     throw err;
   }
+  previews = world.createPreviews();
+  world.setAppearance(G.scene, G.officer);
   $('loading').classList.remove('show');
   showMenu();
 

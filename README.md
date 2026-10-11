@@ -12,6 +12,7 @@
 
 ### 玩法
 - **3D 城市街道追逐**：three.js 渲染，有阳光阴影、楼房、红绿灯、路边停车。
+- **场景与警察选择**：城市街道、林间小镇、海滨大道；经典警察、巡逻警察、机动警察，菜单展示实际 3D 预览并记住选择。
 - **指法提示**：屏幕下方的键盘按手指分颜色，下一个要按的键会闪，并提示「用左手食指按 F」。
 - **8 个关卡**：基准键、加上 G H、上排键、下排键、全部字母、英文单词、拼音音节、数字键。
 - **3 档速度**：🐢 慢慢跑（每分钟约 15 个字就能追上）、🐇 一般快、🚀 飞毛腿。
@@ -38,10 +39,15 @@
 
 ### 修改游戏
 - `web/game.js`：关卡、词库、难度、界面和声音。比如在 `LESSONS` 里加一组课本单词。
-- `web/world.js`：3D 街道、角色和镜头。
+- `web/world.js`：3D 街道、角色、配件、镜头和预览。
+- `web/customization.js`：场景和警察选项。
 - `App/main.swift`：Mac 窗口外壳（WKWebView，通过 `app://` 加载 `web/` 目录）。
 
 想在浏览器里边改边看，可以运行 `python3 devserver.py`，然后打开 http://localhost:8765 。
+
+### 开发验证
+
+先运行 `python3 devserver.py`，另一个终端运行 `node tests/customization.cjs` 和 `node tests/scene-combinations.cjs`（需要 Playwright 和 Google Chrome；可通过 `PLAYWRIGHT_PATH` 指定 Playwright 安装路径）。覆盖选择保存、反复切换、警察可见性、暂停和抓获流程，以及三种场景与三种警察的全部九种组合。
 
 ## English
 

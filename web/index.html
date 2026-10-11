@@ -55,6 +55,25 @@
   .stat span { color: var(--muted); font-size: 14px; }
   .tip { margin-top: 14px; font-size: 16px; color: #3b4a6b; }
   @media (max-width: 760px) { .lessons { grid-template-columns: repeat(2, 1fr); } h1 { font-size: 32px; } }
+  #menu .panel { width: 960px; padding: 20px 28px; }
+  #menu h1 { font-size: 34px; }
+  #menu .sub { font-size: 15px; margin-bottom: 8px; }
+  #menu .lesson { padding: 5px 8px; border-radius: 14px; }
+  #menu .lesson .icon { font-size: 23px; }
+  #menu .lesson .name { font-size: 16px; }
+  #menu .lesson .stars { min-height: 8px; font-size: 13px; }
+  .appearance-layout { display:grid; grid-template-columns: 1fr 1fr; gap:20px; text-align:left; }
+  .appearance-options { display:flex; gap:9px; }
+  .appearance-card { flex:1; min-width:0; padding:0 0 8px; border:2px solid #e3e9f7; background:#f7f9ff; border-radius:14px; overflow:hidden; cursor:pointer; color:var(--ink); font-family:inherit; transition:transform .15s; }
+  .appearance-card:hover { transform:translateY(-2px); }
+  .appearance-card[aria-pressed="true"] { border-color:var(--blue); background:#eaf1ff; box-shadow:0 3px 0 var(--blue-dark); }
+  .appearance-card img { display:block; width:100%; height:88px; object-fit:cover; }
+  .appearance-card b { display:block; font-size:14px; margin:5px 2px 2px; }
+  .appearance-card small { display:block; color:var(--muted); font-size:11px; }
+  #menu .section-title { margin-top:10px; font-size:14px; }
+  #menu .btn { margin-top:16px; padding:10px 32px; font-size:21px; }
+  #menu .diff { padding:7px; font-size:15px; }
+  @media(max-width:760px) { .appearance-layout { grid-template-columns:1fr; gap:0; } }
 </style>
 </head>
 <body>
@@ -77,7 +96,11 @@
     <p class="sub">小偷抢走了宝石！手指放在 <span class="kbd">F</span> 和 <span class="kbd">J</span> 的小凸点上，敲对字母就能加速追上他！</p>
     <div class="section-title">① 选择关卡</div>
     <div class="lessons" id="lessons"></div>
-    <div class="section-title">② 小偷跑多快</div>
+    <div class="appearance-layout">
+      <div><div class="section-title">② 追捕地点</div><div class="appearance-options" id="scenes"></div></div>
+      <div><div class="section-title">③ 选择警察</div><div class="appearance-options" id="officers"></div></div>
+    </div>
+    <div class="section-title">④ 小偷跑多快</div>
     <div class="diffs" id="diffs"></div>
     <button class="btn" id="startBtn" tabindex="-1">开始追捕！</button>
     <div class="hint"><span class="kbd">←</span><span class="kbd">→</span> 选关卡 · <span class="kbd">1</span><span class="kbd">2</span><span class="kbd">3</span> 选速度 · <span class="kbd">Enter</span> 开始 · 游戏中 <span class="kbd">Esc</span> 暂停</div>

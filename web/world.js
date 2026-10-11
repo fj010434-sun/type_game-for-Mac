@@ -1,5 +1,6 @@
 // 3D 街道世界：Kenney CC0 模型 + three.js
 import * as THREE from 'three';
+import { SCENES, OFFICERS, validChoice } from './customization.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
 
@@ -34,6 +35,7 @@ export class World {
 
     const hemi = new THREE.HemisphereLight(0xdff1ff, 0x8a9a6a, 1.6);
     this.scene.add(hemi);
+    this.hemi = hemi;
     this.sun = new THREE.DirectionalLight(0xfff4e0, 2.4);
     this.sun.castShadow = true;
     this.sun.shadow.mapSize.set(2048, 2048);
@@ -77,6 +79,8 @@ export class World {
     this.tintCache = new Map();
     this.dust = [];
     this.t = 0;
+    this.theme = 'city'; this.officer = 'classic';
+    this.ground = ground; this.walkMat = walkMat;
   }
 
   makeSky() {
@@ -116,6 +120,208 @@ export class World {
     this.scene.add(this.cop.root, this.thief.root);
     this.makeTrees();
     this.makeDust();
+  }
+
+  createPreviews() {
+    const size = this.renderer.getSize(new THREE.Vector2());
+    const previews = { scenes: {}, officers: {} };
+    this.renderer.setSize(480, 260, false);
+    const camera = new THREE.PerspectiveCamera(52, 480/260, .1, 300);
+    camera.position.set(3,6,17); camera.lookAt(0,1,-20);
+    const copVisible = this.cop.root.visible, thiefVisible = this.thief.root.visible;
+    this.cop.root.visible = this.thief.root.visible = false;
+    for (const option of SCENES) {
+      this.setAppearance(option.id, 'classic'); this.updateChunks(0);
+      this.renderer.render(this.scene,camera);
+      previews.scenes[option.id] = this.renderer.domElement.toDataURL();
+    }
+    this.cop.root.visible = copVisible; this.thief.root.visible = thiefVisible;
+    const portrait = new THREE.Scene(); portrait.background = new THREE.Color(0xeaf1f8);
+    portrait.add(new THREE.HemisphereLight(0xffffff,0x8793ac,2));
+    const light = new THREE.DirectionalLight(0xfff1d8,2.5); light.position.set(-3,5,4); portrait.add(light);
+    const pc = new THREE.PerspectiveCamera(38,480/260,.1,20);
+    pc.position.set(.5,1.0,3.5); pc.lookAt(0,.95,0);
+    for (const option of OFFICERS) {
+      const ch = this.makeCharacter('character-male-c',false); ch.model.rotation.y = 0;
+      this.dressCop(ch,option.id); ch.mixer.update(.1); portrait.add(ch.root);
+      this.renderer.render(portrait,pc); previews.officers[option.id] = this.renderer.domElement.toDataURL();
+      portrait.remove(ch.root); ch.mixer.stopAllAction(); ch.mixer.uncacheRoot(ch.model);
+      for (const part of ch.accessories || []) part.traverse(o => { if(o.isMesh) {o.geometry.dispose();o.material.dispose();} });
+    }
+    this.setAppearance('city','classic');
+    this.renderer.setSize(size.x,size.y,false);
+    return previews;
+  }
+
+  setAppearance(scene, officer) {
+    scene = validChoice(SCENES, scene); officer = validChoice(OFFICERS, officer);
+    if (scene !== this.theme) {
+      this.theme = scene;
+      for (const g of this.chunks.values()) this.scene.remove(g);
+      this.chunks.clear();
+      this.ground.material.color.set(scene === 'coast' ? 0xe9d6a8 : scene === 'forest' ? 0x91b873 : 0x8fd16a);
+      this.sun.color.set(scene === 'forest' ? 0xffe6bc : 0xfff4e0);
+      this.hemi.groundColor.set(scene === 'forest' ? 0x829265 : 0x8a9a6a);
+      this.walkMat.color.set(scene === 'coast' ? 0xf3e8ce : scene === 'forest' ? 0xd6c8a8 : 0xeee3cf);
+      this.scene.fog.color.set(scene === 'coast' ? 0xc7eced : scene === 'forest' ? 0xd9e8ce : 0xd4ecff);
+    }
+    if (this.cop && officer !== this.officer) {
+      this.cop.mixer.stopAllAction();
+      this.cop.mixer.uncacheRoot(this.cop.model);
+      this.scene.remove(this.cop.root);
+      for (const part of this.cop.accessories || []) part.traverse(o => {
+        if (o.isMesh) { o.geometry.dispose(); o.material.dispose(); }
+      });
+      this.cop = this.makeCharacter('character-male-c', false);
+      this.dressCop(this.cop, officer);
+      this.scene.add(this.cop.root);
+    }
+    this.officer = officer;
+  }
+
+  dressCop(ch, officer) {
+    if (officer === 'classic') return;
+    const accessories = new THREE.Group();
+    const piece = (geometry, color, parent, x, y, z) => {
+      const mesh = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({ color }));
+      mesh.position.set(x, y, z); mesh.castShadow = true; parent.add(mesh); return mesh;
+    };
+    const hat = new THREE.Group(); ch.accessories = [hat, accessories];
+    if (officer === 'patrol') {
+      piece(new THREE.CylinderGeometry(0.27, 0.25, 0.15, 8), 0x233c69, hat, 0, 0.34, 0);
+      piece(new THREE.BoxGeometry(0.45, 0.035, 0.22), 0x152642, hat, 0, 0.27, 0.16);
+      const badge = piece(new THREE.CircleGeometry(0.055, 5), 0xffd166, hat, 0, 0.335, 0.25);
+      badge.rotation.z = Math.PI / 2;
+    } else {
+      piece(new THREE.SphereGeometry(0.275, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), 0xf3f5ed, hat, 0, 0.26, 0);
+      piece(new THREE.BoxGeometry(0.48, 0.10, 0.035), 0x294b65, hat, 0, 0.20, 0.19);
+      piece(new THREE.BoxGeometry(0.055, 0.20, 0.40), 0x2f6fec, hat, 0, 0.36, 0);
+    }
+    // 将配件分别挂在头部和躯干骨骼，随动作一起移动。
+    ch.head.add(hat);
+    const badge = piece(new THREE.CircleGeometry(0.045, 5), 0xffd166, accessories, -0.11, 0.18, 0.145);
+    ch.torso.add(accessories);
+  }
+
+  palm(seed) {
+    const group = new THREE.Group();
+    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.23, 4.5, 7), this.palmTrunkMaterial ||= new THREE.MeshLambertMaterial({color:0xb68b58}));
+    trunk.position.y = 2.25; group.add(trunk);
+    const material = this.palmLeafMaterial ||= new THREE.MeshLambertMaterial({color:0x318f68, side:THREE.DoubleSide});
+    if (!this.palmLeafGeometry) {
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute([0,0,0, -.38,-.15,1.3, 0,-.75,2.8, .38,-.15,1.3],3));
+      geo.setIndex([0,1,3,1,2,3]); geo.computeVertexNormals(); this.palmLeafGeometry = geo;
+    }
+    for (let j=0;j<7;j++) {
+      const leaf = new THREE.Mesh(this.palmLeafGeometry, material);
+      leaf.position.y = 4.45; leaf.rotation.y = j*Math.PI*2/7 + hash(seed)*2;
+      leaf.castShadow = true; group.add(leaf);
+    }
+    trunk.castShadow = true; group.scale.setScalar(.8+hash(seed+2)*.3); return group;
+  }
+
+  buildCoastChunk(i) {
+    const g = new THREE.Group(); g.position.z = -i*TILE;
+    const box = (w,h,d,color,x,y,z=0) => {
+      const key = [w,h,d,color].join(':');
+      this.coastParts ||= new Map();
+      if (!this.coastParts.has(key)) this.coastParts.set(key, [new THREE.BoxGeometry(w,h,d), new THREE.MeshLambertMaterial({color})]);
+      const [geometry, material] = this.coastParts.get(key);
+      const mesh = new THREE.Mesh(geometry,material); mesh.position.set(x,y,z); mesh.receiveShadow=true; mesh.castShadow=h>.1; g.add(mesh); return mesh;
+    };
+    const road = this.inst('road-straight',CITY_SCALE); road.rotation.y=Math.PI/2; g.add(road);
+    box(12,.08,TILE,0xefdeb1,13,-.01);
+    box(210,.06,TILE,0x55bdcd,124,-.005);
+    for(let j=0;j<3;j++) box(.22,.012,2.2,0xb6ece5,20+j*5,.0,(hash(i*7+j)-.5)*5);
+    box(.14,.14,TILE,0xf8f5e8,7.25,1.0);
+    for(const z of [-3,1]) box(.16,1.1,.16,0xf8f5e8,7.25,.55,z);
+    if(i%2===0) { const palm=this.palm(i); palm.position.set(5.6,.1,0); g.add(palm); }
+    if(i%3===0) {
+      const p=this.inst('detail-parasol-a',CITY_SCALE*.7); p.position.set(11,0,1); g.add(p);
+      box(1.6,.12,.65,0xffffff,11,.2,-1);
+    }
+    const b=this.tinted(BUILDINGS[Math.floor(hash(i*13)*BUILDINGS.length)],CITY_SCALE,TINTS[Math.floor(hash(i*17)*TINTS.length)]);
+    b.position.set(-11,0,0); b.rotation.y=Math.PI/2; g.add(b);
+    if(i%3===1) { const palm=this.palm(i+11); palm.position.set(-5.6,.1,0); g.add(palm); }
+    if(i%4===0) { const car=this.inst('hatchback-sports',CAR_SCALE); car.position.set(-3.1,0,0); car.rotation.y=Math.PI; g.add(car); }
+    this.scene.add(g); return g;
+  }
+
+  // 共享几何和材质，让无限道路中的木屋与松树保持稳定开销。
+  forestMesh(kind, dimensions, color) {
+    this.forestParts ||= new Map();
+    const key = [kind, ...dimensions, color].join(':');
+    if (!this.forestParts.has(key)) {
+      const geometry = kind === 'cone' ? new THREE.ConeGeometry(...dimensions)
+        : kind === 'rock' ? new THREE.IcosahedronGeometry(...dimensions)
+        : new THREE.BoxGeometry(...dimensions);
+      this.forestParts.set(key, [geometry, new THREE.MeshLambertMaterial({color, flatShading:true})]);
+    }
+    const [geometry, material] = this.forestParts.get(key);
+    const mesh = new THREE.Mesh(geometry, material); mesh.castShadow = mesh.receiveShadow = true;
+    return mesh;
+  }
+
+  pine(seed) {
+    const g = new THREE.Group();
+    const trunk = this.forestMesh('box',[.30,2.5,.30],0x876044);
+    trunk.position.y=1.25; g.add(trunk);
+    for(let j=0;j<3;j++) {
+      const leaf = this.forestMesh('cone',[1.55-j*.35,2.3,7], [0x377452,0x438764,0x579572][j]);
+      leaf.position.y = 2.3+j*1.1; leaf.rotation.y=hash(seed+j)*2; g.add(leaf);
+    }
+    g.scale.setScalar(.85+hash(seed)*.45); return g;
+  }
+
+  cabin(seed) {
+    const g = new THREE.Group();
+    const part = (kind, dimensions, color, x,y,z) => {
+      const m = this.forestMesh(kind,dimensions,color); m.position.set(x,y,z); g.add(m); return m;
+    };
+    part('box',[4.5,.25,4.2],0xc3b69a,0,.12,0);
+    part('box',[4,2.8,3.8],hash(seed)>.5 ? 0xdcb98d : 0xe6ce9d,0,1.65,0);
+    const roof = part('cone',[3.5,1.8,4],0xb46547,0,3.95,0); roof.rotation.y=Math.PI/4; roof.scale.z=.95;
+    part('box',[.5,1.5,.5],0x897565,1.15,4.15,-.8);
+    part('box',[.85,1.7,.08],0x705440,0,1.1,1.94);
+    for(const x of [-1.25,1.25]) {
+      part('box',[.95,1,.12],0xf5e7cc,x,1.9,1.94);
+      part('box',[.73,.78,.14],0x7eaeb8,x,1.9,2.01);
+      part('box',[.06,.8,.16],0xf5e7cc,x,1.9,2.04);
+      part('box',[.8,.06,.16],0xf5e7cc,x,1.9,2.04);
+      part('box',[1.1,.14,.30],0x8b6a4b,x,1.33,2.04);
+    }
+    return g;
+  }
+
+  buildForestChunk(i) {
+    const g = new THREE.Group(); g.position.z=-i*TILE;
+    const road = this.inst('road-straight',CITY_SCALE); road.rotation.y=Math.PI/2; g.add(road);
+    for(const side of [-1,1]) {
+      const seed = i*11+side*37;
+      // 沿路树冠、低矮木栅栏、后排松林形成三层景深，中央道路留空。
+      const t = i%3===0 ? this.tree(seed) : this.pine(seed);
+      t.position.set(side*6.7,.1,0); g.add(t);
+      for(const z of [-3,1]) {
+        const post=this.forestMesh('box',[.15,1,.15],0xa4825a); post.position.set(side*8,.5,z); g.add(post);
+      }
+      for(const y of [.35,.75]) {
+        const rail=this.forestMesh('box',[.12,.12,TILE],0xb5966c); rail.position.set(side*8,y,0);g.add(rail);
+      }
+      if((i+(side>0?2:0))%5===0) {
+        const house=this.cabin(seed); house.position.set(side*12,0,0);house.rotation.y=side>0?-Math.PI/2:Math.PI/2; g.add(house);
+      } else {
+        for(let j=0;j<2;j++) {
+          const pine=this.pine(seed+j*7);pine.position.set(side*(11+j*4),0,(hash(seed+j)-.5)*5);g.add(pine);
+        }
+      }
+      const rear=this.pine(seed+99); rear.scale.multiplyScalar(1.5); rear.position.set(side*(22+hash(seed)*10),0,-2);g.add(rear);
+      const rock=this.forestMesh('rock',[.75,0],0xa9b0a0); rock.scale.set(1.2,.65,.8);rock.position.set(side*9,.4,2.8);g.add(rock);
+      if(i%7===0) {
+        const lamp=this.inst('light-curved',CITY_SCALE*.7);lamp.position.set(side*5.2,0,1.5);lamp.rotation.y=side>0?Math.PI/2:-Math.PI/2;g.add(lamp);
+      }
+    }
+    this.scene.add(g); return g;
   }
 
   makeCharacter(name, isThief) {
@@ -254,6 +460,8 @@ export class World {
   }
 
   buildChunk(i) {
+    if (this.theme === 'coast') return this.buildCoastChunk(i);
+    if (this.theme === 'forest') return this.buildForestChunk(i);
     const g = new THREE.Group();
     const z = -i * TILE;
     g.position.z = z;
