@@ -22,15 +22,19 @@
 
 ![菜单](docs/screenshot-menu.png)
 
+### 下载安装
+从本仓库 [Releases](https://github.com/fj010434-sun/type_game-for-Mac/releases) 下载 `KeyboardCop-<版本>-macos-universal.zip`，解压后把 `键盘小警察.app` 拖进「应用程序」。支持 Apple 芯片和 Intel Mac，需要 macOS 13.3 及以上，不需要安装 Xcode。
+
+应用是本地 ad-hoc 签名，未经 Apple 公证。首次打开如被拦截，按 [Apple 官方说明](https://support.apple.com/zh-cn/102445)在「系统设置 → 隐私与安全性」中选择「仍要打开」。
+
 ### 从源码构建
 需要 macOS 13.3 及以上和 Xcode 命令行工具（`xcode-select --install`）。
 
 ```bash
 ./build.sh            # 生成 dist/键盘小警察.app
 ./build.sh --install  # 同时安装到 /Applications
+./build.sh --release  # 另外生成发布用 ZIP（版本号在 build.sh 顶部的 VERSION）
 ```
-
-应用是本地 ad-hoc 签名，未经 Apple 公证。首次打开如被拦截，可在「系统设置 → 隐私与安全性」中选择「仍要打开」。
 
 ### 修改游戏
 - `web/game.js`：关卡、词库、难度、界面和声音。比如在 `LESSONS` 里加一组课本单词。
@@ -47,7 +51,12 @@ A small macOS typing game for kids. A thief has stolen a gem. Every correct key 
 - 8 lessons (home row → full alphabet → English words → pinyin → numbers) and 3 thief speeds
 - Combo boosts, star ratings, best-score memory, sound effects and background music
 
-Build with `./build.sh --install` (macOS 13.3+, Xcode command line tools). Gameplay lives in `web/game.js`, the 3D world in `web/world.js`, and the native shell in `App/main.swift`.
+Download the universal ZIP from [Releases](https://github.com/fj010434-sun/type_game-for-Mac/releases) (Apple silicon and Intel, macOS 13.3+; ad-hoc signed, not notarized — use Open Anyway in Privacy & Security on first launch), or build with `./build.sh --install` (macOS 13.3+, Xcode command line tools). Gameplay lives in `web/game.js`, the 3D world in `web/world.js`, and the native shell in `App/main.swift`.
+
+## 许可证 / License
+游戏代码采用 [MIT 许可证](LICENSE)。第三方素材保留各自的许可，见下方。
+
+Code is released under the [MIT License](LICENSE); third-party assets keep their own licenses below.
 
 ## 致谢 / Credits
 - 3D 模型与音效：[Kenney](https://kenney.nl)（CC0 1.0，见 `web/assets/KENNEY-LICENSE.txt`）——Mini Characters、City Kit (Commercial / Roads)、Car Kit、Interface Sounds、Impact Sounds
