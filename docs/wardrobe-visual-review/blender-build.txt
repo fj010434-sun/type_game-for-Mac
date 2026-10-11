@@ -1,0 +1,248 @@
+14:14:01 | INFO: Data are loaded, start creating Blender stuff
+14:14:01 | INFO: Blender create Mesh node body-mesh
+14:14:01 | INFO: Blender create Mesh node head-mesh
+14:14:01 | INFO: glTF import finished in 0.03s
+Info: Saved as "base-meshes.blend"
+INFO Draco mesh compression is available, use library at /Users/sunyifeng/.codex/tools/blender-4.5.3/Blender.app/Contents/Resources/4.5/scripts/addons_core/io_scene_gltf2/libextern_draco.dylib
+14:14:01 | INFO: Starting glTF 2.0 export
+14:14:01 | INFO: Extracting primitive: CH_Duty_pants_LOD0
+14:14:01 | INFO: Primitives created: 1
+14:14:01 | INFO: Extracting primitive: CH_Duty_shirt_LOD0
+14:14:01 | INFO: Primitives created: 1
+14:14:01 | INFO: Extracting primitive: CH_Duty_shoes_LOD0
+14:14:01 | INFO: Primitives created: 1
+14:14:01 | INFO: Extracting primitive: CH_Duty_skin_LOD0
+14:14:01 | INFO: Primitives created: 1
+14:14:01 | INFO: Finished glTF 2.0 export in 0.014213085174560547 s
+
+14:14:01 | INFO: Data are loaded, start creating Blender stuff
+14:14:01 | INFO: Blender create Mesh node CH_Duty_pants_LOD0
+14:14:01 | INFO: Blender create Mesh node CH_Duty_shirt_LOD0
+14:14:01 | INFO: Blender create Mesh node CH_Duty_shoes_LOD0
+14:14:01 | INFO: Blender create Mesh node CH_Duty_skin_LOD0
+14:14:01 | INFO: glTF import finished in 0.01s
+14:14:01 | INFO: Starting glTF 2.0 export
+14:14:01 | INFO: Extracting primitive: CH_Jacket_pants_LOD0
+14:14:01 | INFO: Primitives created: 1
+14:14:01 | INFO: Extracting primitive: CH_Jacket_shirt_LOD0
+14:14:01 | INFO: Primitives created: 1
+14:14:01 | INFO: Extracting primitive: CH_Jacket_shoes_LOD0
+/Users/sunyifeng/.codex/tools/blender-4.5.3/Blender.app/Contents/Resources/4.5/scripts/addons_core/io_scene_gltf2/blender/exp/primitive_extract.py:73: RuntimeWarning: divide by zero encountered in matmul
+  res = np.matmul(vectors, np.array(m.transposed()))
+/Users/sunyifeng/.codex/tools/blender-4.5.3/Blender.app/Contents/Resources/4.5/scripts/addons_core/io_scene_gltf2/blender/exp/primitive_extract.py:73: RuntimeWarning: overflow encountered in matmul
+  res = np.matmul(vectors, np.array(m.transposed()))
+/Users/sunyifeng/.codex/tools/blender-4.5.3/Blender.app/Contents/Resources/4.5/scripts/addons_core/io_scene_gltf2/blender/exp/primitive_extract.py:73: RuntimeWarning: invalid value encountered in matmul
+  res = np.matmul(vectors, np.array(m.transposed()))
+14:14:01 | INFO: Primitives created: 1
+14:14:01 | INFO: Extracting primitive: CH_Jacket_skin_LOD0
+14:14:01 | INFO: Primitives created: 1
+14:14:01 | INFO: Finished glTF 2.0 export in 0.006082773208618164 s
+
+14:14:01 | INFO: Data are loaded, start creating Blender stuff
+14:14:01 | INFO: Blender create Mesh node CH_Jacket_pants_LOD0
+14:14:01 | INFO: Blender create Mesh node CH_Jacket_shirt_LOD0
+14:14:01 | INFO: Blender create Mesh node CH_Jacket_shoes_LOD0
+14:14:01 | INFO: Blender create Mesh node CH_Jacket_skin_LOD0
+14:14:01 | INFO: glTF import finished in 0.01s
+PASS: authored two uniforms, original skeleton weights, 2 GLB roundtrips
+Blender 4.5.3 LTS (hash 67807e1800cc built 2025-09-09 01:33:39)
+
+Blender quit
+PASS: full runtime uniforms and original animation library exported to GLB
+14:14:04 | INFO: Data are loaded, start creating Blender stuff
+14:14:04 | INFO: Blender create Mesh node 0
+14:14:04 | INFO: Blender create Mesh node 1
+14:14:04 | INFO: Blender create Mesh node 2
+14:14:04 | INFO: Blender create Mesh node 3
+14:14:04 | INFO: Blender create Mesh node 4
+14:14:04 | INFO: Blender create Mesh node 5
+14:14:04 | INFO: Blender create Mesh node 6
+14:14:04 | INFO: Blender create Mesh node 7
+14:14:04 | INFO: Blender create Mesh node 8
+14:14:04 | INFO: Blender create Mesh node 9
+14:14:04 | INFO: Blender create Mesh node 10
+14:14:04 | INFO: Blender create Mesh node 11
+14:14:04 | INFO: Blender create Mesh node 12
+14:14:04 | INFO: Blender create Mesh node 13
+14:14:04 | INFO: Blender create Mesh node 14
+14:14:04 | INFO: Blender create Mesh node 15
+14:14:04 | INFO: Blender create Mesh node 16
+14:14:04 | INFO: Blender create Mesh node 17
+14:14:04 | INFO: Blender create Mesh node 18
+14:14:04 | INFO: Blender create Mesh node 19
+14:14:04 | INFO: Blender create Mesh node 20
+14:14:04 | INFO: Blender create Mesh node 21
+14:14:04 | INFO: Blender create Mesh node 22
+14:14:04 | INFO: Blender create Mesh node 23
+14:14:04 | INFO: Blender create Mesh node 24
+14:14:04 | INFO: Blender create Mesh node 25
+14:14:04 | INFO: Blender create Mesh node 26
+14:14:04 | INFO: Blender create Mesh node 27
+14:14:04 | INFO: Blender create Mesh node 28
+14:14:04 | INFO: Blender create Mesh node 29
+14:14:04 | INFO: Blender create Mesh node 30
+14:14:04 | INFO: Blender create Mesh node 31
+14:14:04 | INFO: Blender create Mesh node 32
+14:14:04 | INFO: Blender create Mesh node 33
+14:14:04 | INFO: Blender create Mesh node 34
+14:14:04 | INFO: Blender create Mesh node 35
+14:14:04 | INFO: Blender create Mesh node 36
+14:14:04 | INFO: glTF import finished in 0.03s
+Info: Saved as "duty.blend"
+14:14:04 | INFO: Data are loaded, start creating Blender stuff
+14:14:04 | INFO: Blender create Mesh node 0
+14:14:04 | INFO: Blender create Mesh node 1
+14:14:04 | INFO: Blender create Mesh node 2
+14:14:04 | INFO: Blender create Mesh node 3
+14:14:04 | INFO: Blender create Mesh node 4
+14:14:04 | INFO: Blender create Mesh node 5
+14:14:04 | INFO: Blender create Mesh node 6
+14:14:04 | INFO: Blender create Mesh node 7
+14:14:04 | INFO: Blender create Mesh node 8
+14:14:04 | INFO: Blender create Mesh node 9
+14:14:04 | INFO: Blender create Mesh node 10
+14:14:04 | INFO: Blender create Mesh node 11
+14:14:04 | INFO: Blender create Mesh node 12
+14:14:04 | INFO: Blender create Mesh node 13
+14:14:04 | INFO: Blender create Mesh node 14
+14:14:04 | INFO: Blender create Mesh node 15
+14:14:04 | INFO: Blender create Mesh node 16
+14:14:04 | INFO: Blender create Mesh node 17
+14:14:04 | INFO: Blender create Mesh node 18
+14:14:04 | INFO: Blender create Mesh node 19
+14:14:04 | INFO: Blender create Mesh node 20
+14:14:04 | INFO: Blender create Mesh node 21
+14:14:04 | INFO: Blender create Mesh node 22
+14:14:04 | INFO: Blender create Mesh node 23
+14:14:04 | INFO: Blender create Mesh node 24
+14:14:04 | INFO: Blender create Mesh node 25
+14:14:04 | INFO: Blender create Mesh node 26
+14:14:04 | INFO: Blender create Mesh node 27
+14:14:04 | INFO: Blender create Mesh node 28
+14:14:04 | INFO: Blender create Mesh node 29
+14:14:04 | INFO: Blender create Mesh node 30
+14:14:04 | INFO: Blender create Mesh node 31
+14:14:04 | INFO: Blender create Mesh node 32
+14:14:04 | INFO: Blender create Mesh node 33
+14:14:04 | INFO: Blender create Mesh node 34
+14:14:04 | INFO: Blender create Mesh node 35
+14:14:04 | INFO: Blender create Mesh node 36
+14:14:04 | INFO: Blender create Mesh node 37
+14:14:04 | INFO: Blender create Mesh node 38
+14:14:04 | INFO: Blender create Mesh node 39
+14:14:04 | INFO: Blender create Mesh node 40
+14:14:04 | INFO: Blender create Mesh node 41
+14:14:04 | INFO: Blender create Mesh node 42
+14:14:04 | INFO: Blender create Mesh node 43
+14:14:04 | INFO: Blender create Mesh node 44
+14:14:04 | INFO: Blender create Mesh node 45
+14:14:04 | INFO: Blender create Mesh node 46
+14:14:04 | INFO: Blender create Mesh node 47
+14:14:04 | INFO: Blender create Mesh node 48
+14:14:04 | INFO: Blender create Mesh node 49
+14:14:04 | INFO: Blender create Mesh node 50
+14:14:04 | INFO: glTF import finished in 0.03s
+Info: Saved as "jacket.blend"
+PASS: complete GLB reimports with details, rig and animations; editable .blend masters saved
+Blender 4.5.3 LTS (hash 67807e1800cc built 2025-09-09 01:33:39)
+
+Blender quit
+PASS: full runtime uniforms and original animation library exported to GLB
+14:16:14 | INFO: Data are loaded, start creating Blender stuff
+14:16:14 | INFO: Blender create Mesh node 0
+14:16:14 | INFO: Blender create Mesh node 1
+14:16:14 | INFO: Blender create Mesh node 2
+14:16:14 | INFO: Blender create Mesh node 3
+14:16:14 | INFO: Blender create Mesh node 4
+14:16:14 | INFO: Blender create Mesh node 5
+14:16:14 | INFO: Blender create Mesh node 6
+14:16:14 | INFO: Blender create Mesh node 7
+14:16:14 | INFO: Blender create Mesh node 8
+14:16:14 | INFO: Blender create Mesh node 9
+14:16:14 | INFO: Blender create Mesh node 10
+14:16:14 | INFO: Blender create Mesh node 11
+14:16:14 | INFO: Blender create Mesh node 12
+14:16:14 | INFO: Blender create Mesh node 13
+14:16:14 | INFO: Blender create Mesh node 14
+14:16:14 | INFO: Blender create Mesh node 15
+14:16:14 | INFO: Blender create Mesh node 16
+14:16:14 | INFO: Blender create Mesh node 17
+14:16:14 | INFO: Blender create Mesh node 18
+14:16:14 | INFO: Blender create Mesh node 19
+14:16:14 | INFO: Blender create Mesh node 20
+14:16:14 | INFO: Blender create Mesh node 21
+14:16:14 | INFO: Blender create Mesh node 22
+14:16:14 | INFO: Blender create Mesh node 23
+14:16:14 | INFO: Blender create Mesh node 24
+14:16:14 | INFO: Blender create Mesh node 25
+14:16:14 | INFO: Blender create Mesh node 26
+14:16:14 | INFO: Blender create Mesh node 27
+14:16:14 | INFO: Blender create Mesh node 28
+14:16:14 | INFO: Blender create Mesh node 29
+14:16:14 | INFO: Blender create Mesh node 30
+14:16:14 | INFO: Blender create Mesh node 31
+14:16:14 | INFO: Blender create Mesh node 32
+14:16:14 | INFO: Blender create Mesh node 33
+14:16:14 | INFO: Blender create Mesh node 34
+14:16:14 | INFO: Blender create Mesh node 35
+14:16:14 | INFO: Blender create Mesh node 36
+14:16:14 | INFO: glTF import finished in 0.04s
+Info: Saved as "duty.blend"
+14:16:14 | INFO: Data are loaded, start creating Blender stuff
+14:16:14 | INFO: Blender create Mesh node 0
+14:16:14 | INFO: Blender create Mesh node 1
+14:16:14 | INFO: Blender create Mesh node 2
+14:16:14 | INFO: Blender create Mesh node 3
+14:16:14 | INFO: Blender create Mesh node 4
+14:16:14 | INFO: Blender create Mesh node 5
+14:16:14 | INFO: Blender create Mesh node 6
+14:16:14 | INFO: Blender create Mesh node 7
+14:16:14 | INFO: Blender create Mesh node 8
+14:16:14 | INFO: Blender create Mesh node 9
+14:16:14 | INFO: Blender create Mesh node 10
+14:16:14 | INFO: Blender create Mesh node 11
+14:16:14 | INFO: Blender create Mesh node 12
+14:16:14 | INFO: Blender create Mesh node 13
+14:16:14 | INFO: Blender create Mesh node 14
+14:16:14 | INFO: Blender create Mesh node 15
+14:16:14 | INFO: Blender create Mesh node 16
+14:16:14 | INFO: Blender create Mesh node 17
+14:16:14 | INFO: Blender create Mesh node 18
+14:16:14 | INFO: Blender create Mesh node 19
+14:16:14 | INFO: Blender create Mesh node 20
+14:16:14 | INFO: Blender create Mesh node 21
+14:16:14 | INFO: Blender create Mesh node 22
+14:16:14 | INFO: Blender create Mesh node 23
+14:16:14 | INFO: Blender create Mesh node 24
+14:16:14 | INFO: Blender create Mesh node 25
+14:16:14 | INFO: Blender create Mesh node 26
+14:16:14 | INFO: Blender create Mesh node 27
+14:16:14 | INFO: Blender create Mesh node 28
+14:16:14 | INFO: Blender create Mesh node 29
+14:16:14 | INFO: Blender create Mesh node 30
+14:16:14 | INFO: Blender create Mesh node 31
+14:16:14 | INFO: Blender create Mesh node 32
+14:16:14 | INFO: Blender create Mesh node 33
+14:16:14 | INFO: Blender create Mesh node 34
+14:16:14 | INFO: Blender create Mesh node 35
+14:16:14 | INFO: Blender create Mesh node 36
+14:16:14 | INFO: Blender create Mesh node 37
+14:16:14 | INFO: Blender create Mesh node 38
+14:16:14 | INFO: Blender create Mesh node 39
+14:16:14 | INFO: Blender create Mesh node 40
+14:16:14 | INFO: Blender create Mesh node 41
+14:16:14 | INFO: Blender create Mesh node 42
+14:16:14 | INFO: Blender create Mesh node 43
+14:16:14 | INFO: Blender create Mesh node 44
+14:16:14 | INFO: Blender create Mesh node 45
+14:16:14 | INFO: Blender create Mesh node 46
+14:16:14 | INFO: Blender create Mesh node 47
+14:16:14 | INFO: Blender create Mesh node 48
+14:16:14 | INFO: Blender create Mesh node 49
+14:16:14 | INFO: Blender create Mesh node 50
+14:16:14 | INFO: glTF import finished in 0.03s
+Info: Saved as "jacket.blend"
+PASS: complete GLB reimports with details, rig and animations; editable .blend masters saved
+Blender 4.5.3 LTS (hash 67807e1800cc built 2025-09-09 01:33:39)
+
+Blender quit

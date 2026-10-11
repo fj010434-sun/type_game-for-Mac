@@ -1,0 +1,48 @@
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.007s
+
+OK
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.009s
+
+OK
+✔ accuracy boundary 89 (0.729625ms)
+✔ accuracy boundary 90 (0.043875ms)
+✔ accuracy boundary 96 (0.032292ms)
+✔ accuracy boundary 97 (0.030542ms)
+✔ combo threshold and maximum reward (0.044916ms)
+✔ failed and demo rounds give no reward (0.04375ms)
+✔ invalid stats cannot mint XP (0.068375ms)
+✔ accuracy not rounded for rewards (0.028833ms)
+✔ level boundaries and terminal level (0.0525ms)
+✔ award is idempotent (0.192708ms)
+✔ threshold unlocks and high XP unlock all reached items (0.311958ms)
+✔ invalid storage and unknown or locked equipment use defaults (0.082958ms)
+✔ round history bounded and unique (1.421708ms)
+✔ cannot save a locked part (0.122333ms)
+✔ storage failures are reported without throwing (0.089625ms)
+✔ legacy keys untouched and valid save reloads (0.129917ms)
+✔ corrupt JSON does not block boot (0.054041ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 44.075833
+PASS: distinct sleeve and boot silhouettes
+PASS: 128px clay render differences 460 pixels; 8 combinations × 4 clips × 25 frames = 800 valid bone poses
+PASS: modular sample, ten categories, face/hair replacement, running animation
+PASS: locked trial, save eligibility, cancel/Esc rollback, persistence, free presets, minimum window
+PASS: real capture XP, unlock and equip, second round reward, failed round zero reward, demo does not persist XP
+page.waitForSelector: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('#menu.show') to be visible[22m
+
+    at /Users/sunyifeng/.codex/worktrees/police-wardrobe/键盘小警察/tests/wardrobe-review.cjs:3:35 {
+  log: [ "  - waiting for locator('#menu.show') to be visible" ],
+  name: 'TimeoutError'
+}

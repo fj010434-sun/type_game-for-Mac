@@ -1,0 +1,33 @@
+{
+  "source": "Kenney Mini Characters CC0, custom uniform geometry and details",
+  "authoring": "Blender 4.5.3",
+  "runtime": "Three.js r170",
+  "units": "Original model units; full delivered character has runtime scale 2",
+  "axes": "GLB Y up, Blender Z up",
+  "skeleton": [
+    "root",
+    "leg-left",
+    "leg-right",
+    "torso",
+    "arm-left",
+    "arm-right",
+    "head"
+  ],
+  "materials": "Solid colors; exported PBR roughness 0.82 approximates runtime Lambert lighting",
+  "animations": "All 32 original clips; no new motion or cloth simulation",
+  "inferred": "New sleeve length, collar, pockets, cuff and boot designs are original choices fitted to the existing character",
+  "delivery": {
+    "duty": {
+      "meshes": 37,
+      "rigs": 1,
+      "actions": 32,
+      "triangles": 2822
+    },
+    "jacket": {
+      "meshes": 51,
+      "rigs": 1,
+      "actions": 32,
+      "triangles": 4356
+    }
+  }
+}

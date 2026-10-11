@@ -50,6 +50,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         config.mediaTypesRequiringUserActionForPlayback = []
         if ProcessInfo.processInfo.environment["KC_SELFTEST"] != nil {
             config.websiteDataStore = .nonPersistent()
+            if ProcessInfo.processInfo.environment["KC_UNIFORM_TEST"] != nil {
+                let seed = "localStorage.setItem('kc-progress-v1',JSON.stringify({version:1,xp:660,active:true,outfit:{shirt:'shirt-jacket',pants:'pants-patrol',shoes:'shoes-boots'}}));"
+                config.userContentController.addUserScript(WKUserScript(source: seed, injectionTime: .atDocumentStart, forMainFrameOnly: true))
+            }
             config.userContentController.addUserScript(WKUserScript(source: "window.__nativeErrors=[];window.addEventListener('error',e=>window.__nativeErrors.push(e.message));window.addEventListener('unhandledrejection',e=>window.__nativeErrors.push(String(e.reason)));", injectionTime: .atDocumentStart, forMainFrameOnly: true))
         }
         if let dir = Bundle.main.resourceURL?.appendingPathComponent("web") {
@@ -130,7 +134,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                         snap("2-play") {
                             if ProcessInfo.processInfo.environment["KC_WARDROBE_TEST"] == nil { return NSApp.terminate(nil) }
                             typeNext(40) {
-                                waitFor("Boolean(document.querySelector('#result.show')) && window.__kcState().xp === 35") { snap("4-result") { NSApp.terminate(nil) } }
+                                waitFor("Boolean(document.querySelector('#result.show')) && window.__kcState().xp === \(ProcessInfo.processInfo.environment["KC_UNIFORM_TEST"] != nil ? 695 : 35)") { snap("4-result") { NSApp.terminate(nil) } }
                             }
                         }
                     }

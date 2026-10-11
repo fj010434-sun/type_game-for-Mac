@@ -1,0 +1,4 @@
+ld: warning: ignoring file '/Library/Developer/CommandLineTools/usr/lib/swift/macosx/libswiftCompatibilityPacks.a': fat file missing arch 'x86_64', file has 'arm64,arm64e'
+ld: warning: ignoring file '/Library/Developer/CommandLineTools/usr/lib/swift/macosx/libswiftCompatibilityPacks.a': fat file missing arch 'x86_64', file has 'arm64,arm64e'
+dist/键盘小警察.app: replacing existing signature
+✅ 已生成 dist/键盘小警察.app
