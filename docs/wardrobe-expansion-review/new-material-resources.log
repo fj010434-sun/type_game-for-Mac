@@ -1,0 +1,12 @@
+PASS: ten visible item differences, 36 head combinations, 2700 clothing poses {
+  'hat-beret': 14485,
+  'hair-curly': 12985,
+  'face-angular': 4928,
+  'eyes-focused': 1701,
+  'brows-bold': 1693,
+  'nose-bridge': 560,
+  'mouth-grin': 473,
+  'shirt-vest': 15772,
+  'pants-knee': 4288,
+  'shoes-tactical': 22075
+}

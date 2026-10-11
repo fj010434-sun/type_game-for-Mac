@@ -28,6 +28,12 @@
       "rigs": 1,
       "actions": 32,
       "triangles": 4356
+    },
+    "traffic": {
+      "meshes": 76,
+      "rigs": 1,
+      "actions": 32,
+      "triangles": 6076
     }
   }
 }

@@ -50,7 +50,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         config.mediaTypesRequiringUserActionForPlayback = []
         if ProcessInfo.processInfo.environment["KC_SELFTEST"] != nil {
             config.websiteDataStore = .nonPersistent()
-            if ProcessInfo.processInfo.environment["KC_UNIFORM_TEST"] != nil {
+            if ProcessInfo.processInfo.environment["KC_MATERIAL_TEST"] != nil {
+                let seed = "localStorage.setItem('kc-progress-v1',JSON.stringify({version:1,xp:1550,active:true,outfit:{hat:'hat-beret',hair:'hair-curly',face:'face-angular',eyes:'eyes-focused',brows:'brows-bold',nose:'nose-bridge',mouth:'mouth-grin',shirt:'shirt-vest',pants:'pants-knee',shoes:'shoes-tactical'}}));"
+                config.userContentController.addUserScript(WKUserScript(source: seed, injectionTime: .atDocumentStart, forMainFrameOnly: true))
+            } else if ProcessInfo.processInfo.environment["KC_UNIFORM_TEST"] != nil {
                 let seed = "localStorage.setItem('kc-progress-v1',JSON.stringify({version:1,xp:660,active:true,outfit:{shirt:'shirt-jacket',pants:'pants-patrol',shoes:'shoes-boots'}}));"
                 config.userContentController.addUserScript(WKUserScript(source: seed, injectionTime: .atDocumentStart, forMainFrameOnly: true))
             }
@@ -134,7 +137,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                         snap("2-play") {
                             if ProcessInfo.processInfo.environment["KC_WARDROBE_TEST"] == nil { return NSApp.terminate(nil) }
                             typeNext(40) {
-                                waitFor("Boolean(document.querySelector('#result.show')) && window.__kcState().xp === \(ProcessInfo.processInfo.environment["KC_UNIFORM_TEST"] != nil ? 695 : 35)") { snap("4-result") { NSApp.terminate(nil) } }
+                                waitFor("Boolean(document.querySelector('#result.show')) && window.__kcState().xp === \(ProcessInfo.processInfo.environment["KC_MATERIAL_TEST"] != nil ? 1585 : (ProcessInfo.processInfo.environment["KC_UNIFORM_TEST"] != nil ? 695 : 35))") { snap("4-result") { NSApp.terminate(nil) } }
                             }
                         }
                     }
@@ -148,7 +151,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                     waitFor("Boolean(document.querySelector('#wardrobe.show'))") {
                         self.webView.evaluateJavaScript("document.querySelector('[data-item=hat-helmet]').click(); document.getElementById('wardrobeCancel').click()") { _, _ in
                             snap("5-cancel") {
-                                self.webView.evaluateJavaScript("document.getElementById('wardrobeBtn').click(); document.querySelector('[data-item=hat-none]').click()") { _, _ in
+                                self.webView.evaluateJavaScript("document.getElementById('wardrobeBtn').click(); document.querySelector('[data-item=\(ProcessInfo.processInfo.environment["KC_MATERIAL_TEST"] != nil ? "hat-beret" : "hat-none")]').click()") { _, _ in
                                     snap("3-wardrobe") {
                                         self.webView.evaluateJavaScript("document.getElementById('wardrobeSave').click()") { _, _ in play() }
                                     }

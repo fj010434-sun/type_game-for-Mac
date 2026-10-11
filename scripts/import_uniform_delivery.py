@@ -3,7 +3,7 @@ import bpy,json
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/'art/wardrobe'
 report={}
-for style in ['duty','jacket']:
+for style in ['duty','jacket','traffic']:
  bpy.ops.wm.read_factory_settings(use_empty=True)
  bpy.ops.import_scene.gltf(filepath=str(OUT/(style+'.glb')))
  meshes=[o for o in bpy.data.objects if o.type=='MESH' and o.name!='Icosphere']

@@ -27,11 +27,11 @@ class UniformAssets(unittest.TestCase):
     view=d['bufferViews'][a['bufferView']];c={'SCALAR':1,'VEC2':2,'VEC3':3,'VEC4':4,'MAT4':16}[a['type']];offset=view.get('byteOffset',0)+a.get('byteOffset',0)
     for i in range(a['count']):self.assertTrue(all(math.isfinite(x) for x in struct.unpack_from('<'+'f'*c,binary,offset+i*view.get('byteStride',4*c))))
  def test_complete_uniforms(self):
-  for style in ['duty','jacket']:
+  for style in ['duty','jacket','traffic']:
    b=(ROOT/f'art/wardrobe/{style}.glb').read_bytes();n=struct.unpack_from('<I',b,12)[0];d=json.loads(b[20:20+n])
    self.assertGreater(len(d['meshes']),25,'Uniform details or face parts missing')
    names={x.get('name') for x in d['nodes']}
-   for name in (['duty-tie'] if style=='duty' else ['jacket-zipper','jacket-cuff-arm-left','cargo-pocket-leg-left','boot-cuff-leg-left']):self.assertIn(name,names)
+   for name in (['duty-tie'] if style=='duty' else ['reflective-vest-front-1','vest-zipper','knee-pad-leg-left','tactical-cuff-leg-left'] if style=='traffic' else ['jacket-zipper','jacket-cuff-arm-left','cargo-pocket-leg-left','boot-cuff-leg-left']):self.assertIn(name,names)
    self.assertEqual(len(d['animations']),32)
    self.assertTrue((ROOT/f'art/wardrobe/{style}.blend').exists())
 if __name__=='__main__':unittest.main()

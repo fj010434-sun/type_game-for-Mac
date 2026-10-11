@@ -1,5 +1,5 @@
 import {ITEMS,DEFAULT_OUTFIT,CATEGORIES,itemById,compatibilityIssues} from './wardrobe-catalog.mjs';
-const THRESHOLDS=[0,60,150,280,450,660];
+const THRESHOLDS=[0,60,150,280,450,660,900,1200,1550];
 const KEY='kc-progress-v1';
 const zero=()=>({total:0,accuracyBonus:0,comboBonus:0});
 const count=n=>Number.isSafeInteger(n)&&n>=0;

@@ -44,7 +44,7 @@ export function applyOutfit(ch,outfit) {
  if(compatibilityIssues(outfit).length)throw new Error('穿搭部件无效');
  if(ch.parts)release(ch.parts);for(const o of ch.clothes||[])release(o);
  ch.outfit={...outfit};ch.clothes=[];
- const jacket=outfit.shirt==='shirt-jacket',boots=outfit.shoes==='shoes-boots';
+ const vest=outfit.shirt==='shirt-vest',jacket=outfit.shirt==='shirt-jacket'||vest,tactical=outfit.shoes==='shoes-tactical',boots=outfit.shoes==='shoes-boots'||tactical;
  const variant=uniformData.variants[jacket?'jacket':'duty'];
  const regions={shirt:variant.shirt,skin:variant.skin,pants:variant.pants,shoes:uniformData.variants[boots?'jacket':'duty'].shoes};
  for(const [name,data] of Object.entries(regions)) {
@@ -52,22 +52,27 @@ export function applyOutfit(ch,outfit) {
   for(const [key,attribute,size,type] of [['positions','position',3,Float32Array],['normals','normal',3,Float32Array],['uv','uv',2,Float32Array],['joints','skinIndex',4,Uint16Array],['weights','skinWeight',4,Float32Array]])
    geometry.setAttribute(attribute,new THREE.BufferAttribute(new type(data[key].flat()),size));
   geometry.setIndex(data.indices);
+  if(name==='shoes'&&tactical){const a=geometry.attributes.position;for(let i=0;i<a.count;i++)if(a.getY(i)>.125)a.setY(i,a.getY(i)+.035);a.needsUpdate=true;geometry.computeVertexNormals();}
   const material=mat(name==='skin'?0xe4b18c:name==='shirt'?(jacket?0x294464:0x708fbc):name==='pants'?(outfit.pants==='pants-patrol'?0x3d536d:0x343b46):0x242e3d);
   const mesh=new THREE.SkinnedMesh(geometry,material);mesh.name='wardrobe-'+name;
   mesh.bind(ch.body.skeleton,ch.body.bindMatrix);mesh.castShadow=true;mesh.receiveShadow=false;mesh.frustumCulled=false;
   ch.body.parent.add(mesh);ch.clothes.push(mesh);
  }
  const parts=new THREE.Group();parts.name='wardrobe-head';ch.head.add(parts);ch.parts=parts;
- const round=outfit.face==='face-round',skin=0xe4b18c;
+ const round=outfit.face==='face-round',angular=outfit.face==='face-angular',skin=0xe4b18c;
  const width=round?.48:.43,height=round?.37:.41;
- part(parts,rounded(width,height,.34,round?.105:.045),skin,0,.205,0);
+ if(angular){const shape=new THREE.Shape();shape.moveTo(-.21,.17);shape.lineTo(.21,.17);shape.lineTo(.23,.03);shape.lineTo(.18,-.13);shape.lineTo(.10,-.205);shape.lineTo(-.10,-.205);shape.lineTo(-.18,-.13);shape.lineTo(-.23,.03);shape.closePath();const g=new THREE.ExtrudeGeometry(shape,{depth:.31,bevelEnabled:true,bevelSize:.013,bevelThickness:.015,bevelSegments:2});g.translate(0,0,-.155);part(parts,g,skin,0,.215,0);}else part(parts,rounded(width,height,.34,round?.105:.045),skin,0,.205,0);
  for(const side of [-1,1])part(parts,new THREE.SphereGeometry(.045,8,6),skin,side*(width/2+.005),.205,-.005);
  // 发型贴合头型；帽内版本收起顶部头发，保留鬓角。
  const covered=outfit.hat!=='hat-none',hairColor=outfit.hair==='hair-parted'?0x503629:0x634432;
+ if(outfit.hair==='hair-curly'){
+  const curls=covered?[[-.13,.326,.18],[-.055,.338,.19],[.025,.33,.19],[.10,.325,.18]]:[[-.17,.37,.09],[-.085,.409,.105],[0,.415,.11],[.09,.407,.09],[.17,.373,.04],[-.13,.40,-.085],[0,.43,-.10],[.13,.39,-.10],[-.13,.328,.19],[-.045,.343,.197],[.055,.333,.192]];
+  for(const [x,y,z] of curls){const c=part(parts,new THREE.SphereGeometry(1,10,7),0x48332b,x,y,z);c.scale.set(.057,.045,.045);}
+ }
  if(covered&&outfit.hair==='hair-parted'){
   const fringe=part(parts,rounded(.21,.072,.045,.02),hairColor,-.057,.322,.188);fringe.rotation.z=-.20;
  }
- if(!covered){
+ if(!covered&&outfit.hair!=='hair-curly'){
   if(outfit.hair==='hair-parted'){
    const swept=part(parts,new THREE.SphereGeometry(1,16,10),hairColor,-.067,.378,-.012);swept.scale.set(width*.58,.097,.199);
    const side=part(parts,new THREE.SphereGeometry(1,12,8),hairColor,.15,.353,-.012);side.scale.set(.092,.067,.188);
@@ -80,24 +85,27 @@ export function applyOutfit(ch,outfit) {
  const front=.177;
  for(const side of [-1,1]){
   const x=side*.092;
-  const eye=part(parts,rounded(outfit.eyes==='eyes-calm'?.086:.068,outfit.eyes==='eyes-calm'?.035:.071,.012,.013),0xfffaf0,x,.226,front);
-  part(parts,rounded(.026,outfit.eyes==='eyes-calm'?.025:.046,.015,.006),0x303138,x,.225,front+.009);
+  const eye=part(parts,rounded(outfit.eyes==='eyes-focused'?.102:outfit.eyes==='eyes-calm'?.086:.068,outfit.eyes==='eyes-focused'?.052:outfit.eyes==='eyes-calm'?.035:.071,.012,.013),0xfffaf0,x,.226,front);
+  part(parts,rounded(.026,outfit.eyes==='eyes-focused'?.035:outfit.eyes==='eyes-calm'?.025:.046,.015,.006),0x303138,x,.225,front+.009);
   part(parts,new THREE.SphereGeometry(.007,6,4),0xffffff,x-.006,.233,front+.019);
   if(outfit.brows==='brows-natural'){
    const curve=new THREE.QuadraticBezierCurve3(new THREE.Vector3(x-.044,.277,front+.009),new THREE.Vector3(x,.302,front+.009),new THREE.Vector3(x+.044,.277,front+.009));
    part(parts,new THREE.TubeGeometry(curve,8,.007,5,false),hairColor);
-  }else part(parts,rounded(.10,.025,.012,.005),hairColor,x,.281,front+.009);
+  }else if(outfit.brows==='brows-bold'){const b=part(parts,rounded(.113,.031,.014,.005),0x48332b,x,.285,front+.01);b.rotation.z=-side*.16;}else part(parts,rounded(.10,.025,.012,.005),hairColor,x,.281,front+.009);
  }
  const nose=part(parts,new THREE.SphereGeometry(outfit.nose==='nose-round'?.041:.021,8,6),0xd99f79,0,.183,front+.004);
  nose.scale.z=.85;
- if(outfit.mouth==='mouth-happy'){
+ if(outfit.nose==='nose-bridge'){part(parts,rounded(.028,.061,.029,.009),0xd99f79,0,.194,front+.008);nose.scale.set(1.3,.85,1.4);nose.position.y=.169;}
+ if(outfit.mouth==='mouth-grin'){const curve=new THREE.CubicBezierCurve3(new THREE.Vector3(-.052,.139,front+.01),new THREE.Vector3(-.02,.103,front+.012),new THREE.Vector3(.035,.115,front+.012),new THREE.Vector3(.056,.145,front+.01));part(parts,new THREE.TubeGeometry(curve,12,.006,5,false),0x965b4d);part(parts,new THREE.SphereGeometry(.007,6,4),0xc58b70,.063,.147,front+.006);
+ }else if(outfit.mouth==='mouth-happy'){
   part(parts,rounded(.104,.044,.012,.018),0x965b4d,0,.129,front);
   part(parts,rounded(.082,.012,.014,.005),0xfff9ef,0,.139,front+.008);
  }else{
   const curve=new THREE.QuadraticBezierCurve3(new THREE.Vector3(-.042,.136,front+.009),new THREE.Vector3(0,.108,front+.012),new THREE.Vector3(.042,.136,front+.009));
   part(parts,new THREE.TubeGeometry(curve,10,.005,5,false),0x9b604d);
  }
- if(outfit.hat==='hat-cap'){
+ if(outfit.hat==='hat-beret'){const crown=part(parts,new THREE.SphereGeometry(1,16,10),0x263f59,-.045,.423,-.025);crown.scale.set(.285,.089,.235);crown.rotation.z=.16;part(parts,new THREE.CylinderGeometry(.238,.237,.027,16),0x172a46,0,.355,-.015);part(parts,new THREE.CircleGeometry(.025,5),0xe5bd72,.105,.398,.202);
+ }else if(outfit.hat==='hat-cap'){
   part(parts,new THREE.CylinderGeometry(.30,.29,.105,12),0x213754,0,.405,-.006);
   part(parts,rounded(.49,.028,.19,.02),0x172a46,0,.348,.13);
   part(parts,new THREE.CircleGeometry(.028,5),0xffd17a,0,.405,.29);
@@ -111,7 +119,19 @@ export function applyOutfit(ch,outfit) {
  const uniform=attach(ch.torso);
  const navy=0x203751,trim=0x8da9c7,metal=0xe5bd72;
  part(uniform,new THREE.CircleGeometry(.022,5),metal,-.075,.105,.15);
- if(jacket){
+ if(vest){
+  for(const side of [-1,1]){
+   part(uniform,rounded(.113,.157,.033,.012),0xd5d755,side*.075,.069,.15).name='reflective-vest-front-'+side;
+   part(uniform,rounded(.041,.139,.015,.005),0xeaf1d7,side*.068,.082,.173);
+   part(uniform,rounded(.116,.022,.018,.004),0xeaf1d7,side*.075,.014,.174);
+   part(uniform,rounded(.071,.045,.02,.005),navy,side*.083,.044,.181);
+   part(uniform,rounded(.111,.151,.03,.01),0xd5d755,side*.074,.066,-.109);
+   part(uniform,rounded(.038,.13,.014,.004),0xeaf1d7,side*.067,.074,-.131);
+   part(uniform,rounded(.116,.021,.014,.004),0xeaf1d7,side*.074,.014,-.131);
+  }
+  part(uniform,rounded(.015,.145,.025,.004),navy,0,.065,.174).name='vest-zipper';
+  part(uniform,rounded(.25,.023,.033,.006),navy,0,-.01,.147);
+ }else if(jacket){
   for(const side of [-1,1]){
    const collar=part(uniform,rounded(.073,.061,.036,.011),navy,side*.045,.148,.123);collar.rotation.z=side*-.16;
    part(uniform,rounded(.088,.051,.02,.007),navy,side*.085,.035,.151);
@@ -140,11 +160,21 @@ export function applyOutfit(ch,outfit) {
    part(details,rounded(.135,.009,.02,.003),trim,side*.096,.023,.10);
   }
   const leg=ch.model.getObjectByName(side===1?'leg-left':'leg-right');const legDetails=attach(leg);
+  if(outfit.pants==='pants-knee'){
+   part(legDetails,rounded(.114,.061,.022,.014),0x283b50,0,-.061,.074).name='knee-pad-'+leg.name;
+   part(legDetails,rounded(.091,.038,.015,.011),0x59738a,0,-.06,.091);
+   for(const y of [-.034,-.088])part(legDetails,rounded(.135,.011,.019,.003),0x26374a,0,y,.071);
+   part(legDetails,rounded(.034,.062,.087,.007),0x26374a,side*.073,-.019,.014);
+  }
   if(outfit.pants==='pants-patrol'){
    part(legDetails,rounded(.031,.066,.107,.006),0x263c55,side*.071,-.058,.019).name='cargo-pocket-'+leg.name;
    part(legDetails,rounded(.04,.018,.119,.005),0x6a829e,side*.074,-.029,.019);
   }
-  if(boots){
+  if(tactical){
+   part(legDetails,rounded(.162,.024,.191,.007),0x172331,0,-.007,.01).name='tactical-cuff-'+leg.name;
+   for(const y of [-.035,-.053,-.071,-.089])part(legDetails,rounded(.063,.010,.016,.003),0x9ba6b3,0,y,.129);
+   part(legDetails,rounded(.122,.024,.052,.007),0x172331,0,-.124,.129);
+  }else if(boots){
    part(legDetails,rounded(.161,.02,.189,.007),0x172331,0,-.043,.01).name='boot-cuff-'+leg.name;
    for(const y of [-.075,-.092])part(legDetails,rounded(.061,.011,.016,.003),0x7a8a9d,0,y,.128);
   }

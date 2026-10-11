@@ -1,0 +1,60 @@
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.007s
+
+OK
+...
+----------------------------------------------------------------------
+Ran 3 tests in 0.017s
+
+OK
+✔ accuracy boundary 89 (0.400291ms)
+✔ accuracy boundary 90 (0.042667ms)
+✔ accuracy boundary 96 (0.033458ms)
+✔ accuracy boundary 97 (0.03075ms)
+✔ combo threshold and maximum reward (0.044667ms)
+✔ failed and demo rounds give no reward (0.043084ms)
+✔ invalid stats cannot mint XP (0.067ms)
+✔ accuracy not rounded for rewards (0.030167ms)
+✔ level boundaries and terminal level (0.105625ms)
+✔ award is idempotent (0.224541ms)
+✔ threshold unlocks and high XP unlock all reached items (0.33ms)
+✔ invalid storage and unknown or locked equipment use defaults (0.0865ms)
+✔ round history bounded and unique (1.891583ms)
+✔ cannot save a locked part (0.086625ms)
+✔ storage failures are reported without throwing (0.284666ms)
+✔ legacy keys untouched and valid save reloads (0.55825ms)
+✔ corrupt JSON does not block boot (0.127167ms)
+✔ one distinct new item for each category (0.533416ms)
+✔ old save and old unlocks survive catalog expansion (0.417958ms)
+✔ new unlock boundaries and equipment validation (2.445083ms)
+✔ new experience stages award actual newly reached materials (0.285ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 56.446584
+PASS: ten visible item differences, 36 head combinations, 2700 clothing poses {
+  'hat-beret': 14485,
+  'hair-curly': 12985,
+  'face-angular': 4928,
+  'eyes-focused': 1701,
+  'brows-bold': 1693,
+  'nose-bridge': 560,
+  'mouth-grin': 473,
+  'shirt-vest': 15772,
+  'pants-knee': 4288,
+  'shoes-tactical': 22075
+}
+PASS: distinct sleeve and boot silhouettes
+PASS: 128px clay render differences 460 pixels; 8 combinations × 4 clips × 25 frames = 800 valid bone poses
+PASS: modular sample, ten categories, face/hair replacement, running animation
+PASS: locked trial, save eligibility, cancel/Esc rollback, persistence, free presets, minimum window
+PASS: real capture XP, unlock and equip, second round reward, failed round zero reward, demo does not persist XP
+PASS: focus containment, 20 reopenings, all ten equipped parts, 3 custom scenes, storage error, 12 head and 8 uniform combinations
+PASS: owned skeleton disposal and texture counts stable across 12 custom game/scene replacements
+PASS: scene / officer selection, persistence, repeated switching, pause, capture, stale settings fallback, minimum window, no page errors
+PASS: all 9 scene/officer combinations start, show the officer, and return to menu without page errors
