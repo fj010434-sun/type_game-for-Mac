@@ -670,6 +670,8 @@ window.addEventListener('blur', pauseGame);
 
 window.addEventListener('keydown', e => {
   if (e.metaKey || e.ctrlKey) return; // 保留 ⌘Q 等系统快捷键
+  const menuButton=G.state==='menu' && e.target.closest?.('button');
+  if(G.state==='menu' && (e.key==='Tab' || (menuButton && menuButton.getClientRects().length && ['Enter',' '].includes(e.key))))return;
   if(G.state!=='wardrobe') e.preventDefault();
   if (e.repeat) return;
   const key = e.key;

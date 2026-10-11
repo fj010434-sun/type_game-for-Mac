@@ -50,7 +50,7 @@
 
 先运行 `python3 devserver.py`，另一个终端运行 `node tests/customization.cjs` 和 `node tests/scene-combinations.cjs`（需要 Playwright 和 Google Chrome；可通过 `PLAYWRIGHT_PATH` 指定 Playwright 安装路径）。覆盖选择保存、反复切换、警察可见性、暂停和抓获流程，以及三种场景与三种警察的全部九种组合。
 
-新增换装验证可执行 `BASE_URL=http://localhost:8765 ./tests/run-all.sh`，串行运行素材检查、17 项成长单元测试和 6 组浏览器流程。无需网络资源，测试依赖 Playwright 和 Google Chrome。测试截图写入 `docs/wardrobe-review/`。
+新增换装验证可执行 `BASE_URL=http://localhost:8765 ./tests/run-all.sh`，串行运行素材检查、17 项成长单元测试和 7 组浏览器流程。无需网络资源，测试依赖 Playwright 和 Google Chrome。测试截图写入 `docs/wardrobe-review/`。
 
 原生自检：构建后设置 `KC_SELFTEST` 为已存在的输出目录，启动 `dist/键盘小警察.app/Contents/MacOS/KeyboardCop`；再加 `KC_WARDROBE_TEST=1` 可检查试穿、取消、保存及实际按键抓捕。自检使用临时存储，不修改日常玩家进度。详见 [换装验证记录](docs/wardrobe-review/verification.md)。
 

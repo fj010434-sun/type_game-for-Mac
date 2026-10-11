@@ -1,12 +1,14 @@
 const {setup}=require('./browser-helper.cjs');const assert=require('node:assert/strict');
 (async()=>{const {browser,page,errors,base}=await setup();try{
  await page.goto(base);await page.waitForSelector('#menu.show');
- await page.locator('#wardrobeBtn').click({timeout:5000});await page.waitForSelector('#wardrobe.show');
+ await page.locator('#wardrobeBtn').focus();await page.keyboard.press('Tab');assert.notEqual(await page.evaluate(()=>document.activeElement.id),'wardrobeBtn','menu Tab advances focus');await page.locator('#wardrobeBtn').focus();await page.keyboard.press('Enter');await page.waitForSelector('#wardrobe.show');
  assert.equal(await page.locator('#wardrobe [data-category]').count(),10);
  await page.getByRole('button',{name:/白色机动头盔/}).click();
  assert.equal(await page.locator('#wardrobeSave').isDisabled(),true);
  await page.getByRole('button',{name:'取消',exact:true}).click();
  assert.equal(await page.locator('#menu.show').isVisible(),true);
+ assert.equal(await page.evaluate(()=>document.activeElement.id),'wardrobeBtn','cancel restores opener focus');
+ await page.keyboard.press('Space');await page.waitForSelector('#wardrobe.show');await page.keyboard.press('Escape');
  assert.equal(await page.evaluate(()=>localStorage.getItem('kc-progress-v1')),null);
  await page.locator('#wardrobeBtn').click();await page.getByRole('button',{name:/不戴帽子/}).click();await page.locator('#wardrobeSave').click();
  await page.reload();await page.waitForSelector('#menu.show');

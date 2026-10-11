@@ -1,6 +1,6 @@
 // 3D 街道世界：Kenney CC0 模型 + three.js
 import * as THREE from 'three';
-import { createWardrobeCharacter, loadWardrobeAssets } from './wardrobe-character.js';
+import { createWardrobeCharacter, loadWardrobeAssets, disposeCharacterSkeletons } from './wardrobe-character.js';
 import { SCENES, OFFICERS, validChoice } from './customization.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
@@ -155,12 +155,18 @@ export class World {
     return previews;
   }
 
-  setCustomOutfit(outfit) {
-    if(this.cop.dispose) this.cop.dispose();
+  retireCop() {
+    if (!this.cop) return;
+    if (this.cop.dispose) this.cop.dispose();
     else {
-      this.cop.mixer.stopAllAction();this.cop.mixer.uncacheRoot(this.cop.model);this.scene.remove(this.cop.root);
+      this.cop.mixer.stopAllAction();this.cop.mixer.uncacheRoot(this.cop.model);
+      disposeCharacterSkeletons(this.cop.model);this.scene.remove(this.cop.root);
       for(const part of this.cop.accessories || []) part.traverse(o=>{if(o.isMesh){o.geometry.dispose();o.material.dispose();}});
     }
+  }
+
+  setCustomOutfit(outfit) {
+    this.retireCop();
     this.cop = createWardrobeCharacter(this.models['character-male-c'], outfit);
     this.scene.add(this.cop.root);this.officer='custom';
   }
@@ -178,13 +184,7 @@ export class World {
       this.scene.fog.color.set(scene === 'coast' ? 0xc7eced : scene === 'forest' ? 0xd9e8ce : 0xd4ecff);
     }
     if (this.cop && officer !== this.officer) {
-      if(this.cop.dispose) this.cop.dispose();
-      this.cop.mixer.stopAllAction();
-      this.cop.mixer.uncacheRoot(this.cop.model);
-      this.scene.remove(this.cop.root);
-      for (const part of this.cop.accessories || []) part.traverse(o => {
-        if (o.isMesh) { o.geometry.dispose(); o.material.dispose(); }
-      });
+      this.retireCop();
       this.cop = this.makeCharacter('character-male-c', false);
       this.dressCop(this.cop, officer);
       this.scene.add(this.cop.root);

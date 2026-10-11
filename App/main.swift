@@ -48,7 +48,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         let config = WKWebViewConfiguration()
         config.mediaTypesRequiringUserActionForPlayback = []
-        if ProcessInfo.processInfo.environment["KC_SELFTEST"] != nil { config.websiteDataStore = .nonPersistent() }
+        if ProcessInfo.processInfo.environment["KC_SELFTEST"] != nil {
+            config.websiteDataStore = .nonPersistent()
+            config.userContentController.addUserScript(WKUserScript(source: "window.__nativeErrors=[];window.addEventListener('error',e=>window.__nativeErrors.push(e.message));window.addEventListener('unhandledrejection',e=>window.__nativeErrors.push(String(e.reason)));", injectionTime: .atDocumentStart, forMainFrameOnly: true))
+        }
         if let dir = Bundle.main.resourceURL?.appendingPathComponent("web") {
             config.setURLSchemeHandler(BundleSchemeHandler(root: dir), forURLScheme: "app")
         }
@@ -87,7 +90,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         }
         let codes: [Character: UInt16] = ["a": 0, "s": 1, "d": 2, "f": 3, "h": 4, "g": 5, "z": 6, "x": 7, "c": 8, "v": 9, "b": 11, "q": 12, "w": 13, "e": 14, "r": 15, "y": 16, "t": 17, "o": 31, "u": 32, "i": 34, "p": 35, "l": 37, "j": 38, "k": 40, ";": 41, "n": 45, "m": 46, " ": 49]
         func snap(_ name: String, then: @escaping () -> Void) {
-            webView.evaluateJavaScript("JSON.stringify(window.__kcState && window.__kcState())") { result, _ in
+            webView.evaluateJavaScript("JSON.stringify(window.__kcState && {...window.__kcState(),errors:window.__nativeErrors||[],visibility:document.visibilityState,focused:document.hasFocus(),contextLost:document.getElementById('gl').getContext('webgl2').isContextLost()})") { result, _ in
                 try? ((result as? String) ?? "null").write(toFile: "\(outDir)/\(name).json", atomically: true, encoding: .utf8)
                 self.webView.takeSnapshot(with: nil) { image, _ in
                     if let tiff = image?.tiffRepresentation, let rep = NSBitmapImageRep(data: tiff), let png = rep.representation(using: .png, properties: [:]) {
@@ -111,19 +114,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 if error == nil, (result as? Bool) == true { return then() }
                 guard attempts > 0 else {
                     try? "Timed out: \(expression)".write(toFile: "\(outDir)/failure.txt", atomically: true, encoding: .utf8)
-                    return NSApp.terminate(nil)
+                    return snap("failure") { NSApp.terminate(nil) }
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { waitFor(expression, attempts: attempts - 1, then: then) }
             }
         }
         func play() {
-            key("\r", 36)
-            waitFor("window.__kcState().state === 'play'") {
-                typeNext(24) {
-                    snap("2-play") {
-                        if ProcessInfo.processInfo.environment["KC_WARDROBE_TEST"] == nil { return NSApp.terminate(nil) }
-                        typeNext(40) {
-                            waitFor("Boolean(document.querySelector('#result.show')) && window.__kcState().xp === 35") { snap("4-result") { NSApp.terminate(nil) } }
+            window.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+            window.makeFirstResponder(webView)
+            webView.evaluateJavaScript("document.getElementById('startBtn').focus()") { _, _ in
+                key("\r", 36)
+                waitFor("window.__kcState().state === 'play'") {
+                    typeNext(24) {
+                        snap("2-play") {
+                            if ProcessInfo.processInfo.environment["KC_WARDROBE_TEST"] == nil { return NSApp.terminate(nil) }
+                            typeNext(40) {
+                                waitFor("Boolean(document.querySelector('#result.show')) && window.__kcState().xp === 35") { snap("4-result") { NSApp.terminate(nil) } }
+                            }
                         }
                     }
                 }

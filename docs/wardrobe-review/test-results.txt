@@ -1,0 +1,40 @@
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.007s
+
+OK
+✔ accuracy boundary 89 (3.426208ms)
+✔ accuracy boundary 90 (0.064958ms)
+✔ accuracy boundary 96 (0.032625ms)
+✔ accuracy boundary 97 (0.035167ms)
+✔ combo threshold and maximum reward (0.0465ms)
+✔ failed and demo rounds give no reward (0.043375ms)
+✔ invalid stats cannot mint XP (0.073625ms)
+✔ accuracy not rounded for rewards (0.037042ms)
+✔ level boundaries and terminal level (0.063542ms)
+✔ award is idempotent (0.226291ms)
+✔ threshold unlocks and high XP unlock all reached items (0.377542ms)
+✔ invalid storage and unknown or locked equipment use defaults (0.094542ms)
+✔ round history bounded and unique (5.439875ms)
+✔ cannot save a locked part (0.673209ms)
+✔ storage failures are reported without throwing (0.181291ms)
+✔ legacy keys untouched and valid save reloads (0.240084ms)
+✔ corrupt JSON does not block boot (0.115333ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 74.694583
+PASS: modular sample, ten categories, face/hair replacement, running animation
+PASS: locked trial, save eligibility, cancel/Esc rollback, persistence, free presets, minimum window
+PASS: real capture XP, unlock and equip, second round reward, failed round zero reward, demo does not persist XP
+PASS: focus containment, 20 reopenings, all ten equipped parts, 3 custom scenes, storage error, 12 head and 8 uniform combinations
+PASS: owned skeleton disposal and texture counts stable across 12 custom game/scene replacements
+PASS: scene / officer selection, persistence, repeated switching, pause, capture, stale settings fallback, minimum window, no page errors
+PASS: all 9 scene/officer combinations start, show the officer, and return to menu without page errors
+
+PASS: final native cancel/save, 24 actual keyboard hits, 0 wrong, +35 XP, no script errors, WebGL context intact
+PASS: universal arm64/x86_64 build, strict ad-hoc signature, all packaged web resources match source

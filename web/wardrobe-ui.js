@@ -36,7 +36,7 @@ export async function createWardrobeUI({container,progress,onSave,onCancel}) {
   else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
  });
  function close(){container.classList.remove('show');preview.stop();container.removeAttribute('aria-modal');opener?.focus();}
- $('wardrobeCancel').onclick=()=>{close();onCancel();};
+ $('wardrobeCancel').onclick=()=>{onCancel();close();};
  $('wardrobeSave').onclick=()=>{if(!canEquip(draft,current).ok)return;const result=onSave({...draft});close();if(result?.ok===false)document.getElementById('progressError').textContent=result.error;};
- return {open(progress){current=progress;draft={...progress.outfit};opener=document.activeElement;preview.setOutfit(draft);preview.angle=.15;preview.closeup=false;preview.animate('idle');category='hat';render();container.classList.add('show');container.setAttribute('aria-modal','true');container.setAttribute('role','dialog');preview.resize();preview.start();$('wardrobeTabs').firstElementChild.focus();},close,resize(){preview.resize();},dispose(){preview.dispose();},cancel(){close();onCancel();},thumbnail(outfit){preview.setOutfit(outfit);preview.closeup=false;preview.angle=.15;preview.render(0);return preview.canvas.toDataURL();}};
+ return {open(progress){current=progress;draft={...progress.outfit};opener=document.activeElement;preview.setOutfit(draft);preview.angle=.15;preview.closeup=false;preview.animate('idle');category='hat';render();container.classList.add('show');container.setAttribute('aria-modal','true');container.setAttribute('role','dialog');preview.resize();preview.start();$('wardrobeTabs').firstElementChild.focus();},close,resize(){preview.resize();},dispose(){preview.dispose();},cancel(){onCancel();close();},thumbnail(outfit){preview.setOutfit(outfit);preview.closeup=false;preview.angle=.15;preview.render(0);return preview.canvas.toDataURL();}};
 }

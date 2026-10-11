@@ -23,6 +23,9 @@ function part(parent,geo,color,x=0,y=0,z=0) {
  const o=new THREE.Mesh(geo,mat(color));o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=false;parent.add(o);return o;
 }
 function release(group) {group.traverse(o=>{if(o.isMesh){o.geometry.dispose();if(o.userData.ownMaterial)o.material.dispose();}});group.removeFromParent();}
+export function disposeCharacterSkeletons(model) {
+ for(const skeleton of new Set(model.getObjectsByProperty('isSkinnedMesh',true).map(mesh=>mesh.skeleton)))skeleton.dispose();
+}
 export function createWardrobeCharacter(baseGLTF,outfit=DEFAULT_OUTFIT) {
  if(!bodyData) throw new Error('请先加载换装素材');
  const model=clone(baseGLTF.scene);model.scale.setScalar(2);model.rotation.y=Math.PI;
@@ -33,7 +36,7 @@ export function createWardrobeCharacter(baseGLTF,outfit=DEFAULT_OUTFIT) {
  model.traverse(o=>{if(o.name==='head')head=o;if(o.name==='torso')torso=o;if(o.name==='body-mesh')body=o;if(o.name==='head-mesh')oldHead=o;});
  model.updateMatrixWorld(true);body.visible=false;oldHead.visible=false;
  const ch={root,model,mixer,actions,head,torso,body,current:null,parts:null,outfit:null};
- ch.dispose=()=>{mixer.stopAllAction();mixer.uncacheRoot(model);if(ch.parts)release(ch.parts);for(const o of ch.clothes||[])release(o);root.removeFromParent();};
+ ch.dispose=()=>{mixer.stopAllAction();mixer.uncacheRoot(model);disposeCharacterSkeletons(model);if(ch.parts)release(ch.parts);for(const o of ch.clothes||[])release(o);root.removeFromParent();};
  applyOutfit(ch,outfit);return ch;
 }
 export function applyOutfit(ch,outfit) {
@@ -66,8 +69,8 @@ export function applyOutfit(ch,outfit) {
  // 发型贴合头型；帽内版本收起顶部头发，保留鬓角。
  const covered=outfit.hat!=='hat-none',hairColor=outfit.hair==='hair-parted'?0x503629:0x634432;
  if(!covered){
-  part(parts,rounded(width+.018,.115,.35,.035),hairColor,0,.365,-.005);
-  const fringe=part(parts,rounded(outfit.hair==='hair-parted'?.22:.33,.07,.025,.015),hairColor,outfit.hair==='hair-parted'?-.06:0,.327,.176);
+  part(parts,rounded(width+.018,.115,.38,.035),hairColor,0,.365,-.005);
+  const fringe=part(parts,rounded(outfit.hair==='hair-parted'?.22:.33,.07,.025,.015),hairColor,outfit.hair==='hair-parted'?-.06:0,.327,.20);
   if(outfit.hair==='hair-parted')fringe.rotation.z=-.12;
  }
  part(parts,rounded(width+.012,.24,.045,.025),hairColor,0,.245,-.185);
