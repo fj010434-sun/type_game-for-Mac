@@ -13,7 +13,7 @@
 ### 玩法
 - **3D 城市街道追逐**：three.js 渲染，有阳光阴影、楼房、红绿灯、路边停车。
 - **场景与警察选择**：城市街道、林间小镇、海滨大道；经典警察、巡逻警察、机动警察，菜单展示实际 3D 预览并记住选择。
-- **警察衣柜与成长**：帽子、头发、脸型、眼睛、眉毛、鼻子、嘴、上衣、裤子、鞋共 10 类、21 件物品。抓获基础 20 经验，准确率与连击最多再加 15 经验；6 个等级逐步解锁。支持真实 3D 试穿、转身、近景和跑步预览，保存后用于追捕；取消保留原搭配。进度只存本机，失败或演示不给经验。
+- **警察衣柜与成长**：帽子、头发、脸型、眼睛、眉毛、鼻子、嘴、上衣、裤子、鞋共 10 类、31 件物品。抓获基础 20 经验，准确率与连击最多再加 15 经验；9 个等级逐步解锁。支持真实 3D 试穿、转身、近景和跑步预览，保存后用于追捕；取消保留原搭配。进度只存本机，失败或演示不给经验。
 - **指法提示**：屏幕下方的键盘按手指分颜色，下一个要按的键会闪，并提示「用左手食指按 F」。
 - **8 个关卡**：基准键、加上 G H、上排键、下排键、全部字母、英文单词、拼音音节、数字键。
 - **3 档速度**：🐢 慢慢跑（每分钟约 15 个字就能追上）、🐇 一般快、🚀 飞毛腿。
@@ -23,6 +23,8 @@
 操作：`←` `→` 选关卡，`1` `2` `3` 选速度，`Enter` 开始，`Esc` 暂停，`⌘F` 全屏。
 
 ![菜单](docs/screenshot-menu.png)
+
+![三套警察换装形象](docs/wardrobe-expansion-review/preview.png)
 
 ### 下载安装
 从本仓库 [Releases](https://github.com/fj010434-sun/type_game-for-Mac/releases) 下载 `KeyboardCop-<版本>-macos-universal.zip`，解压后把 `键盘小警察.app` 拖进「应用程序」。支持 Apple 芯片和 Intel Mac，需要 macOS 13.3 及以上，不需要安装 Xcode。
@@ -50,7 +52,7 @@
 
 先运行 `python3 devserver.py`，另一个终端运行 `node tests/customization.cjs` 和 `node tests/scene-combinations.cjs`（需要 Playwright 和 Google Chrome；可通过 `PLAYWRIGHT_PATH` 指定 Playwright 安装路径）。覆盖选择保存、反复切换、警察可见性、暂停和抓获流程，以及三种场景与三种警察的全部九种组合。
 
-新增换装验证可执行 `BASE_URL=http://localhost:8765 ./tests/run-all.sh`，串行运行素材检查、17 项成长单元测试和 7 组浏览器流程。无需网络资源，测试依赖 Playwright 和 Google Chrome。测试截图写入 `docs/wardrobe-review/`。
+新增换装验证可执行 `BASE_URL=http://localhost:8765 ./tests/run-all.sh`，串行运行素材检查、21 项成长与素材单元测试和 10 组浏览器流程。无需网络资源，测试依赖 Playwright 和 Google Chrome。测试截图写入 `docs/wardrobe-review/`。
 
 原生自检：构建后设置 `KC_SELFTEST` 为已存在的输出目录，启动 `dist/键盘小警察.app/Contents/MacOS/KeyboardCop`；再加 `KC_WARDROBE_TEST=1` 可检查试穿、取消、保存及实际按键抓捕。自检使用临时存储，不修改日常玩家进度。详见 [换装验证记录](docs/wardrobe-review/verification.md)。
 
