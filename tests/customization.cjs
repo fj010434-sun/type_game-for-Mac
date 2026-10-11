@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
  const browser = await chromium.launch({headless:true, channel:"chrome"});
  const page = await browser.newPage({viewport:{width:1280,height:800}});
  const errors=[]; page.on('pageerror',e=>errors.push(e.message));
- await page.goto('http://127.0.0.1:8765');
+ await page.goto(process.env.BASE_URL || 'http://127.0.0.1:8765');
  await page.waitForSelector('#menu.show');
  assert.equal(await page.locator('#scenes button').count(),3,'three selectable scenes');
  await page.getByRole('button',{name:'海滨大道',exact:false}).click();

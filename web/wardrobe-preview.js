@@ -21,7 +21,7 @@ export class WardrobePreview {
  animate(name){this.animation=name;for(const action of Object.values(this.character.actions))action.stop();this.character.actions[name]?.reset().play();}
  resize(){const r=this.canvas.getBoundingClientRect();if(r.width<1||r.height<1)return;this.renderer.setSize(r.width,r.height,false);this.camera.aspect=r.width/r.height;this.camera.updateProjectionMatrix();if(this.character)this.render(0);}
  render(dt){if(!this.character)return;this.character.mixer.update(dt);this.character.root.rotation.y=this.angle;
-  this.camera.position.set(0,this.closeup?1.16:1.05,this.closeup?1.8:3.5);this.camera.lookAt(0,this.closeup?1.1:.8,0);this.renderer.render(this.scene,this.camera);
+  this.camera.position.set(0,this.closeup?1.28:1.15,this.closeup?2.45:3.9);this.camera.lookAt(0,this.closeup?1.25:.9,0);this.renderer.render(this.scene,this.camera);
  }
  start(){if(this.running)return;this.running=true;this.last=performance.now();const frame=now=>{if(!this.running)return;this.render(Math.min(.05,(now-this.last)/1000));this.last=now;this.raf=requestAnimationFrame(frame);};this.raf=requestAnimationFrame(frame);this.resize();}
  stop(){this.running=false;cancelAnimationFrame(this.raf);}

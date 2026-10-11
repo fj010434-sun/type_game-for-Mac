@@ -20,7 +20,7 @@ function rounded(w,h,d,r=.025) {
  const g=new THREE.ExtrudeGeometry(s,{depth:d-2*bevel,bevelEnabled:bevel>0,bevelThickness:bevel,bevelSize:bevel,bevelSegments:1,curveSegments:3});g.translate(0,0,-(d-2*bevel)/2);return g;
 }
 function part(parent,geo,color,x=0,y=0,z=0) {
- const o=new THREE.Mesh(geo,mat(color));o.position.set(x,y,z);o.castShadow=o.receiveShadow=true;parent.add(o);return o;
+ const o=new THREE.Mesh(geo,mat(color));o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=false;parent.add(o);return o;
 }
 function release(group) {group.traverse(o=>{if(o.isMesh){o.geometry.dispose();if(o.userData.ownMaterial)o.material.dispose();}});group.removeFromParent();}
 export function createWardrobeCharacter(baseGLTF,outfit=DEFAULT_OUTFIT) {
@@ -55,7 +55,7 @@ export function applyOutfit(ch,outfit) {
   }
   const material=name==='skin'?ch.body.material:mat(name==='shirt'?(outfit.shirt==='shirt-jacket'?0x263e60:0x617dac):name==='pants'?(outfit.pants==='pants-patrol'?0x34465c:0x343b46):0x242a34);
   const mesh=new THREE.SkinnedMesh(geometry,material);mesh.name='wardrobe-'+name;
-  mesh.bind(ch.body.skeleton,ch.body.bindMatrix);mesh.castShadow=mesh.receiveShadow=true;mesh.frustumCulled=false;
+  mesh.bind(ch.body.skeleton,ch.body.bindMatrix);mesh.castShadow=true;mesh.receiveShadow=false;mesh.frustumCulled=false;
   ch.body.parent.add(mesh);ch.clothes.push(mesh);
  }
  const parts=new THREE.Group();parts.name='wardrobe-head';ch.head.add(parts);ch.parts=parts;
@@ -91,12 +91,12 @@ export function applyOutfit(ch,outfit) {
   part(parts,new THREE.TubeGeometry(curve,10,.005,5,false),0x9b604d);
  }
  if(outfit.hat==='hat-cap'){
-  part(parts,new THREE.CylinderGeometry(.265,.24,.105,10),0x213754,0,.405,-.006);
-  part(parts,rounded(.40,.028,.19,.02),0x172a46,0,.348,.13);
-  part(parts,new THREE.CircleGeometry(.028,5),0xffd17a,0,.405,.248);
+  part(parts,new THREE.CylinderGeometry(.30,.29,.105,12),0x213754,0,.405,-.006);
+  part(parts,rounded(.49,.028,.19,.02),0x172a46,0,.348,.13);
+  part(parts,new THREE.CircleGeometry(.028,5),0xffd17a,0,.405,.29);
  }else if(outfit.hat==='hat-helmet'){
-  part(parts,new THREE.SphereGeometry(.27,14,8,0,Math.PI*2,0,Math.PI/2),0xf1f1e7,0,.33,-.006);
-  part(parts,rounded(.46,.025,.12,.018),0xd4d9d7,0,.332,.13);
+  part(parts,new THREE.SphereGeometry(.31,16,10,0,Math.PI*2,0,Math.PI/2),0xf1f1e7,0,.33,-.006);
+  part(parts,rounded(.51,.025,.12,.018),0xd4d9d7,0,.332,.13);
   part(parts,rounded(.43,.077,.018,.02),0x324d62,0,.295,.20);
  }
  // Collar, badge and pockets move with torso. Add to separate owned group.

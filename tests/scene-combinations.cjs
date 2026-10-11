@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
  const browser=await chromium.launch({channel:'chrome',headless:true});
  const page=await browser.newPage({viewport:{width:1280,height:800}});
  const errors=[]; page.on('pageerror',e=>errors.push(e.message));
- await page.goto('http://127.0.0.1:8765');await page.waitForSelector('#menu.show');
+ await page.goto(process.env.BASE_URL || 'http://127.0.0.1:8765');await page.waitForSelector('#menu.show');
  for (const [scene,name] of [['city','城市街道'],['coast','海滨大道'],['forest','林间小镇']]) {
   for(const [officer,label] of [['classic','经典警察'],['patrol','巡逻警察'],['motor','机动警察']]) {
    await page.getByRole('button',{name,exact:false}).click();

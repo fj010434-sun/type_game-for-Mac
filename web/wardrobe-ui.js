@@ -28,6 +28,13 @@ export async function createWardrobeUI({container,progress,onSave,onCancel}) {
   $('wardrobeStatus').textContent=eligible.ok?'当前搭配可以保存。保存后，追捕中的警察也会穿上这一套。':'仅试穿，尚不能保存：'+eligible.reasons.join('；');
   $('wardrobeProgress').textContent=`Lv.${levelForXP(current.xp).level} · 累计 ${current.xp} 经验`;
  }
+ container.addEventListener('keydown',event=>{
+  if(event.key!=='Tab'||!container.classList.contains('show'))return;
+  const buttons=[...container.querySelectorAll('button:not(:disabled)')];
+  const first=buttons[0],last=buttons[buttons.length-1];
+  if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
+  else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
+ });
  function close(){container.classList.remove('show');preview.stop();container.removeAttribute('aria-modal');opener?.focus();}
  $('wardrobeCancel').onclick=()=>{close();onCancel();};
  $('wardrobeSave').onclick=()=>{if(!canEquip(draft,current).ok)return;const result=onSave({...draft});close();if(result?.ok===false)document.getElementById('progressError').textContent=result.error;};

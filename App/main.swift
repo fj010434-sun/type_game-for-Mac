@@ -48,6 +48,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         let config = WKWebViewConfiguration()
         config.mediaTypesRequiringUserActionForPlayback = []
+        if ProcessInfo.processInfo.environment["KC_SELFTEST"] != nil { config.websiteDataStore = .nonPersistent() }
         if let dir = Bundle.main.resourceURL?.appendingPathComponent("web") {
             config.setURLSchemeHandler(BundleSchemeHandler(root: dir), forURLScheme: "app")
         }
@@ -98,22 +99,56 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         }
         func typeNext(_ left: Int, done: @escaping () -> Void) {
             guard left > 0 else { return done() }
-            webView.evaluateJavaScript("window.__kcState().line[window.__kcState().idx]") { r, _ in
-                if let ch = (r as? String)?.first, let code = self.codes(ch, codes) { key(String(ch), code) }
+            webView.evaluateJavaScript("window.__kcState().state === 'play' ? window.__kcState().line[window.__kcState().idx] : null") { r, _ in
+                guard let ch = (r as? String)?.first, let code = self.codes(ch, codes) else { return done() }
+                key(String(ch), code)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { typeNext(left - 1, done: done) }
             }
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 6) {
+        // 等待真实状态；加载速度不会再决定自检是否误发按键。
+        func waitFor(_ expression: String, attempts: Int = 240, then: @escaping () -> Void) {
+            webView.evaluateJavaScript(expression) { result, error in
+                if error == nil, (result as? Bool) == true { return then() }
+                guard attempts > 0 else {
+                    try? "Timed out: \(expression)".write(toFile: "\(outDir)/failure.txt", atomically: true, encoding: .utf8)
+                    return NSApp.terminate(nil)
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { waitFor(expression, attempts: attempts - 1, then: then) }
+            }
+        }
+        func play() {
+            key("\r", 36)
+            waitFor("window.__kcState().state === 'play'") {
+                typeNext(24) {
+                    snap("2-play") {
+                        if ProcessInfo.processInfo.environment["KC_WARDROBE_TEST"] == nil { return NSApp.terminate(nil) }
+                        typeNext(40) {
+                            waitFor("Boolean(document.querySelector('#result.show')) && window.__kcState().xp === 35") { snap("4-result") { NSApp.terminate(nil) } }
+                        }
+                    }
+                }
+            }
+        }
+        waitFor("Boolean(document.querySelector('#menu.show'))") {
             snap("1-menu") {
-                key("\r", 36) // Enter 开始
-                DispatchQueue.main.asyncAfter(deadline: .now() + 3.6) {
-                    typeNext(24) {
-                        snap("2-play") { NSApp.terminate(nil) }
+                if ProcessInfo.processInfo.environment["KC_WARDROBE_TEST"] == nil { return play() }
+                self.webView.evaluateJavaScript("document.getElementById('wardrobeBtn').click()") { _, _ in
+                    waitFor("Boolean(document.querySelector('#wardrobe.show'))") {
+                        self.webView.evaluateJavaScript("document.querySelector('[data-item=hat-helmet]').click(); document.getElementById('wardrobeCancel').click()") { _, _ in
+                            snap("5-cancel") {
+                                self.webView.evaluateJavaScript("document.getElementById('wardrobeBtn').click(); document.querySelector('[data-item=hat-none]').click()") { _, _ in
+                                    snap("3-wardrobe") {
+                                        self.webView.evaluateJavaScript("document.getElementById('wardrobeSave').click()") { _, _ in play() }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
     }
+
     func codes(_ ch: Character, _ table: [Character: UInt16]) -> UInt16? { table[ch] }
 
     func buildMenu() {
