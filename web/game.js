@@ -1,7 +1,11 @@
 // 键盘小警察 · 3D 版：游戏逻辑、HUD、声音
 import { World, COP_X, THIEF_X } from './world.js';
+import { loadProgress, saveProgress, canEquip, levelForXP } from './progression.mjs';
+import { createWardrobeUI } from './wardrobe-ui.js';
 import { SCENES, OFFICERS, validChoice } from './customization.js';
-let previews = null;
+let previews = null, wardrobe = null;
+const progressStorage={getItem:key=>localStorage.getItem(key),setItem:(key,value)=>localStorage.setItem(key,value)};
+let progress=loadProgress(progressStorage);
 
 // ---------- 关卡与难度 ----------
 const LESSONS = [
@@ -204,7 +208,7 @@ const saved = store('kc-settings') || {};
 G.lesson = clamp(saved.lesson | 0, 0, LESSONS.length - 1);
 G.diff = clamp(saved.diff | 0, 0, DIFFS.length - 1);
 G.scene = validChoice(SCENES, saved.scene);
-G.officer = validChoice(OFFICERS, saved.officer);
+G.officer = progress.active ? 'custom' : validChoice(OFFICERS, saved.officer);
 Music.on = saved.music !== false;
 const best = store('kc-best') || {};
 
@@ -230,11 +234,17 @@ function makeLine() {
   return parts.join(' ');
 }
 
+function applyAppearance() {
+  world.setAppearance(G.scene, G.officer==='custom'?'classic':G.officer);
+  if(G.officer==='custom')world.setCustomOutfit(progress.outfit);
+  G.snap=true;
+}
+
 function startGame() {
   audio(); Music.start(); Music.setLevel(0.55);
   SFX.click();
   saveSettings();
-  world.setAppearance(G.scene, G.officer);
+  applyAppearance();
   hideAll();
   Object.assign(G, {
     state: 'ready', timer: 2.99, gap: START_GAP, shown: START_GAP, idx: 0,
@@ -554,15 +564,16 @@ function hideAll() { ['menu', 'result', 'pause'].forEach(id => $(id).classList.r
 function saveSettings() { store('kc-settings', { lesson: G.lesson, diff: G.diff, music: Music.on, scene: G.scene, officer: G.officer }); }
 
 function renderAppearance() {
-  for (const [id, items, field] of [['scenes', SCENES, 'scene'], ['officers', OFFICERS, 'officer']]) {
+  const officers=progress.active?[...OFFICERS,{id:'custom',name:'我的警察',note:'衣柜中的搭配'}]:OFFICERS;
+  for (const [id, items, field] of [['scenes', SCENES, 'scene'], ['officers', officers, 'officer']]) {
     const container = $(id); container.replaceChildren();
     for (const item of items) {
       const button = document.createElement('button'); button.type = 'button'; button.className = 'appearance-card';
       button.dataset.id = item.id; button.setAttribute('aria-pressed', String(G[field] === item.id));
-      const img = document.createElement('img'); img.src = previews[id][item.id]; img.alt = ''; button.appendChild(img);
+      const img = document.createElement('img'); img.src = item.id==='custom'?wardrobe.thumbnail(progress.outfit):previews[id][item.id]; img.alt = ''; button.appendChild(img);
       const name = document.createElement('b'); name.textContent = item.name; button.appendChild(name);
       const note = document.createElement('small'); note.textContent = item.note; button.appendChild(note);
-      button.onclick = () => { audio(); SFX.select(); G[field] = item.id; saveSettings(); world.setAppearance(G.scene,G.officer); G.snap=true; renderAppearance(); };
+      button.onclick = () => { audio(); SFX.select(); G[field] = item.id; if(field==='officer'&&item.id!=='custom'){progress={...progress,active:false};const stored=saveProgress(progressStorage,progress);$('progressError').textContent=stored.ok?'':stored.error;} saveSettings(); applyAppearance(); G.snap=true; renderAppearance(); };
       container.appendChild(button);
     }
   }
@@ -595,6 +606,8 @@ function showMenu() {
   G.state = 'menu'; G.resultShown = false; G.snap = true;
   if (AC) Music.setLevel(0.3);
   renderMenu();
+  const level=levelForXP(progress.xp);$('growthLabel').textContent=`Lv.${level.level} · ${progress.xp} 经验`;
+  $('growthFill').style.width=(level.nextThreshold?100*(progress.xp-level.currentThreshold)/(level.nextThreshold-level.currentThreshold):100)+'%';
   $('menu').classList.add('show');
 }
 
@@ -643,9 +656,10 @@ window.addEventListener('blur', pauseGame);
 
 window.addEventListener('keydown', e => {
   if (e.metaKey || e.ctrlKey) return; // 保留 ⌘Q 等系统快捷键
-  e.preventDefault();
+  if(G.state!=='wardrobe') e.preventDefault();
   if (e.repeat) return;
   const key = e.key;
+  if (G.state === 'wardrobe') { if(key==='Escape'){wardrobe.cancel();} return; }
   if (G.state === 'loading') return;
   if (G.state === 'menu') {
     audio(); Music.start(); Music.setLevel(0.3);
@@ -676,20 +690,20 @@ window.addEventListener('keydown', e => {
 });
 
 // 给 Mac 外壳的自检读状态用
-window.__kcState = () => ({ scene: G.scene, officer: G.officer, copVisible: !!world.cop?.root.parent && world.cop.root.visible, state: G.state, idx: G.idx, line: G.line, correct: G.correct, wrong: G.wrong, gap: +G.gap.toFixed(1), sfx: Object.keys(sfxBuf).length, audio: AC ? AC.state : 'none' });
+window.__kcState = () => ({ xp:progress.xp, outfit:{...progress.outfit}, scene: G.scene, officer: G.officer, copVisible: !!world.cop?.root.parent && world.cop.root.visible, state: G.state, idx: G.idx, line: G.line, correct: G.correct, wrong: G.wrong, gap: +G.gap.toFixed(1), sfx: Object.keys(sfxBuf).length, audio: AC ? AC.state : 'none' });
 
 // ---------- 主循环 ----------
 let last = performance.now();
 function frame(now) {
   const dt = Math.min(0.05, (now - last) / 1000);
   last = now;
-  const frozen = G.state === 'pause' || G.hold;
+  const frozen = G.state === 'pause' || G.state === 'wardrobe' || G.hold;
   if (!frozen) update(dt);
   if (world.cop) {
     world.update(frozen ? 0 : dt, worldState());
     G.snap = false;
   }
-  renderHud();
+  if(G.state==='wardrobe') {ctx.clearRect(0,0,hud.width,hud.height);} else renderHud();
   requestAnimationFrame(frame);
 }
 
@@ -702,7 +716,9 @@ async function boot() {
     throw err;
   }
   previews = world.createPreviews();
-  world.setAppearance(G.scene, G.officer);
+  wardrobe=await createWardrobeUI({container:$('wardrobe'),progress,onSave(outfit){if(!canEquip(outfit,progress).ok)return {ok:false,error:'搭配尚未解锁'};progress={...progress,outfit,active:true};const result=saveProgress(progressStorage,progress);G.officer='custom';applyAppearance();showMenu();return result;},onCancel:showMenu});
+  $('wardrobeBtn').onclick=()=>{hideAll();G.state='wardrobe';wardrobe.open(progress);};
+  applyAppearance();
   $('loading').classList.remove('show');
   showMenu();
 

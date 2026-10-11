@@ -1,0 +1,21 @@
+const {setup}=require('./browser-helper.cjs');const assert=require('node:assert/strict');
+(async()=>{const {browser,page,errors,base}=await setup();try{
+ await page.goto(base);await page.waitForSelector('#menu.show');
+ await page.locator('#wardrobeBtn').click({timeout:5000});await page.waitForSelector('#wardrobe.show');
+ assert.equal(await page.locator('#wardrobe [data-category]').count(),10);
+ await page.getByRole('button',{name:/白色机动头盔/}).click();
+ assert.equal(await page.locator('#wardrobeSave').isDisabled(),true);
+ await page.getByRole('button',{name:'取消',exact:true}).click();
+ assert.equal(await page.locator('#menu.show').isVisible(),true);
+ assert.equal(await page.evaluate(()=>localStorage.getItem('kc-progress-v1')),null);
+ await page.locator('#wardrobeBtn').click();await page.getByRole('button',{name:/不戴帽子/}).click();await page.locator('#wardrobeSave').click();
+ await page.reload();await page.waitForSelector('#menu.show');
+ const p=await page.evaluate(()=>JSON.parse(localStorage.getItem('kc-progress-v1')));assert.equal(p.outfit.hat,'hat-none');assert.equal(p.active,true);
+ await page.locator('#wardrobeBtn').click();await page.getByRole('button',{name:/蓝色警帽/}).click();await page.keyboard.press('Escape');
+ assert.equal((await page.evaluate(()=>JSON.parse(localStorage.getItem('kc-progress-v1')))).outfit.hat,'hat-none');
+ await page.getByRole('button',{name:'经典警察',exact:false}).click();
+ assert.equal((await page.evaluate(()=>JSON.parse(localStorage.getItem('kc-progress-v1')))).active,false);
+ await page.setViewportSize({width:960,height:620});await page.locator('#wardrobeBtn').click();
+ assert.equal(await page.locator('#wardrobeSave').isVisible(),true);await page.locator('#wardrobeCancel').click();
+ assert.deepEqual(errors,[]);console.log('PASS: locked trial, save eligibility, cancel/Esc rollback, persistence, free presets, minimum window');
+ }finally{await browser.close()}})().catch(e=>{console.error(e);process.exit(1)});

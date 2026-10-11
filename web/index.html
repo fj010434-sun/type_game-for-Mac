@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>键盘小警察</title>
+<link rel="stylesheet" href="wardrobe.css">
 <style>
   :root {
     --ink: #1f2a44;
@@ -102,10 +103,13 @@
     </div>
     <div class="section-title">④ 小偷跑多快</div>
     <div class="diffs" id="diffs"></div>
+    <div class="growth-row"><div><b id="growthLabel">Lv.1 · 0 经验</b><span class="growth-track"><i id="growthFill"></i></span><div id="progressError" class="xp-error" aria-live="polite"></div></div><button class="wardrobe-entry" id="wardrobeBtn">警察衣柜 →</button></div>
     <button class="btn" id="startBtn" tabindex="-1">开始追捕！</button>
     <div class="hint"><span class="kbd">←</span><span class="kbd">→</span> 选关卡 · <span class="kbd">1</span><span class="kbd">2</span><span class="kbd">3</span> 选速度 · <span class="kbd">Enter</span> 开始 · 游戏中 <span class="kbd">Esc</span> 暂停</div>
   </div>
 </div>
+
+<div class="overlay" id="wardrobe"></div>
 
 <div class="overlay" id="result">
   <div class="panel">
