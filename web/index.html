@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>键盘小警察</title>
+<style>
+  :root {
+    --ink: #1f2a44;
+    --blue: #2f6fec;
+    --blue-dark: #1d4fb8;
+    --yellow: #ffd23f;
+    --card: #ffffff;
+    --muted: #6b7a99;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #8fd3ff; font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif; color: var(--ink); user-select: none; -webkit-user-select: none; cursor: default; }
+  canvas { display: block; position: fixed; inset: 0; width: 100%; height: 100%; }
+  #hud { pointer-events: none; }
+  #musicBtn { position: fixed; top: 16px; right: 16px; z-index: 5; width: 46px; height: 46px; border-radius: 50%; border: none; background: rgba(255,255,255,.9); font-size: 22px; cursor: pointer; box-shadow: 0 3px 0 #c9d6f2; }
+  #loading { background: linear-gradient(#5fb8ff, #c4e4ff); backdrop-filter: none; }
+  .loadbar { width: 320px; height: 16px; border-radius: 8px; background: #e3e9f7; overflow: hidden; margin: 18px auto 0; }
+  .loadbar div { height: 100%; width: 0; background: var(--blue); transition: width .2s; }
+  .overlay { position: fixed; inset: 0; z-index: 4; display: none; align-items: center; justify-content: center; background: rgba(20, 40, 80, 0.35); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+  .overlay.show { display: flex; }
+  .panel { background: var(--card); border-radius: 28px; padding: 28px 34px; box-shadow: 0 12px 0 #c9d6f2, 0 24px 60px rgba(0,0,0,.25); max-width: min(980px, 94vw); max-height: 94vh; overflow: auto; text-align: center; }
+  h1 { margin: 0 0 4px; font-size: 44px; letter-spacing: 2px; }
+  h1 .badge { display: inline-block; transform: rotate(-8deg); }
+  .sub { color: var(--muted); margin: 0 0 18px; font-size: 17px; }
+  .section-title { text-align: left; font-weight: 700; font-size: 16px; color: var(--muted); margin: 14px 4px 8px; }
+  .lessons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .lesson { border: 3px solid #e3e9f7; border-radius: 18px; padding: 12px 10px 10px; background: #f7f9ff; cursor: pointer; transition: transform .12s, border-color .12s; }
+  .lesson:hover { transform: translateY(-3px); }
+  .lesson.sel { border-color: var(--blue); background: #eaf1ff; box-shadow: 0 4px 0 var(--blue-dark); }
+  .lesson .icon { font-size: 30px; }
+  .lesson .name { font-weight: 800; font-size: 18px; margin-top: 2px; }
+  .lesson .desc { font-size: 13px; color: var(--muted); margin-top: 2px; font-family: ui-monospace, Menlo, monospace; }
+  .lesson .stars { margin-top: 4px; font-size: 16px; letter-spacing: 2px; color: #f5b301; min-height: 20px; }
+  .diffs { display: flex; gap: 10px; }
+  .diff { flex: 1; border: 3px solid #e3e9f7; border-radius: 16px; padding: 10px; cursor: pointer; background: #f7f9ff; font-weight: 700; font-size: 17px; }
+  .diff small { display: block; font-weight: 400; color: var(--muted); font-size: 13px; margin-top: 2px; }
+  .diff.sel { border-color: #ff8a3d; background: #fff3ea; box-shadow: 0 4px 0 #d9661c; }
+  .btn { display: inline-block; margin-top: 22px; padding: 14px 40px; border-radius: 999px; border: none; background: var(--blue); color: white; font-size: 24px; font-weight: 800; box-shadow: 0 6px 0 var(--blue-dark); cursor: pointer; font-family: inherit; }
+  .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--blue-dark); }
+  .btn.ghost { background: #eef2fb; color: var(--ink); box-shadow: 0 6px 0 #c9d3ea; margin-left: 12px; }
+  .hint { color: var(--muted); font-size: 14px; margin-top: 12px; }
+  .kbd { display: inline-block; padding: 1px 8px; border: 2px solid #cfd8ee; border-bottom-width: 4px; border-radius: 7px; font-family: ui-monospace, Menlo, monospace; font-size: 13px; background: #fff; }
+  .result-emoji { font-size: 72px; line-height: 1; }
+  .result-title { font-size: 40px; font-weight: 900; margin: 8px 0 4px; }
+  .result-stars { font-size: 52px; letter-spacing: 6px; color: #f5b301; margin: 6px 0 10px; }
+  .result-stars .off { color: #dfe5f2; }
+  .stats { display: flex; gap: 12px; justify-content: center; }
+  .stat { background: #f3f6fd; border-radius: 16px; padding: 10px 18px; min-width: 120px; }
+  .stat b { display: block; font-size: 28px; }
+  .stat span { color: var(--muted); font-size: 14px; }
+  .tip { margin-top: 14px; font-size: 16px; color: #3b4a6b; }
+  @media (max-width: 760px) { .lessons { grid-template-columns: repeat(2, 1fr); } h1 { font-size: 32px; } }
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<canvas id="hud"></canvas>
+<button id="musicBtn" tabindex="-1" title="音乐开关">🔊</button>
+
+<div class="overlay show" id="loading">
+  <div class="panel">
+    <div class="result-emoji">🚓</div>
+    <div class="result-title">键盘小警察</div>
+    <div class="tip" id="loadText">正在搭建城市街道…</div>
+    <div class="loadbar"><div id="loadBar"></div></div>
+  </div>
+</div>
+
+<div class="overlay" id="menu">
+  <div class="panel">
+    <h1><span class="badge">👮</span> 键盘小警察 <span class="badge">🦹</span></h1>
+    <p class="sub">小偷抢走了宝石！手指放在 <span class="kbd">F</span> 和 <span class="kbd">J</span> 的小凸点上，敲对字母就能加速追上他！</p>
+    <div class="section-title">① 选择关卡</div>
+    <div class="lessons" id="lessons"></div>
+    <div class="section-title">② 小偷跑多快</div>
+    <div class="diffs" id="diffs"></div>
+    <button class="btn" id="startBtn" tabindex="-1">开始追捕！</button>
+    <div class="hint"><span class="kbd">←</span><span class="kbd">→</span> 选关卡 · <span class="kbd">1</span><span class="kbd">2</span><span class="kbd">3</span> 选速度 · <span class="kbd">Enter</span> 开始 · 游戏中 <span class="kbd">Esc</span> 暂停</div>
+  </div>
+</div>
+
+<div class="overlay" id="result">
+  <div class="panel">
+    <div class="result-emoji" id="rEmoji">🎉</div>
+    <div class="result-title" id="rTitle">抓到小偷啦！</div>
+    <div class="result-stars" id="rStars"></div>
+    <div class="stats">
+      <div class="stat"><b id="rKpm">0</b><span>每分钟字数</span></div>
+      <div class="stat"><b id="rAcc">0%</b><span>正确率</span></div>
+      <div class="stat"><b id="rCombo">0</b><span>最高连击</span></div>
+      <div class="stat"><b id="rTime">0秒</b><span>用时</span></div>
+    </div>
+    <div class="tip" id="rTip"></div>
+    <button class="btn" id="againBtn" tabindex="-1">再来一次 <small>(Enter)</small></button>
+    <button class="btn ghost" id="menuBtn" tabindex="-1">选关卡 <small>(Esc)</small></button>
+  </div>
+</div>
+
+<div class="overlay" id="pause">
+  <div class="panel">
+    <div class="result-emoji">⏸️</div>
+    <div class="result-title">休息一下</div>
+    <div class="tip">小偷也停下来喘气了～</div>
+    <button class="btn" id="resumeBtn" tabindex="-1">继续 <small>(Enter)</small></button>
+    <button class="btn ghost" id="quitBtn" tabindex="-1">回到菜单 <small>(Esc)</small></button>
+  </div>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "./vendor/three/build/three.module.min.js",
+  "three/addons/": "./vendor/three/examples/jsm/"
+} }
+</script>
+<script type="module" src="game.js"></script>
+</body>
+</html>
