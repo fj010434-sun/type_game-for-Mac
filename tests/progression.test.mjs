@@ -1,0 +1,18 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';
+import {captureReward,levelForXP,normalizeProgress,awardCapture,loadProgress,saveProgress,canEquip} from '../web/progression.mjs';
+import {DEFAULT_OUTFIT} from '../web/wardrobe-catalog.mjs';
+const stats=(correct=90,wrong=10,maxCombo=0)=>({win:true,correct,wrong,maxCombo,demo:false});
+for(const [correct,total] of [[89,20],[90,25],[96,25],[97,30]])test('accuracy boundary '+correct,()=>assert.equal(captureReward(stats(correct,100-correct)).total,total));
+test('combo threshold and maximum reward',()=>{assert.equal(captureReward(stats(97,3,19)).total,30);assert.equal(captureReward(stats(97,3,20)).total,35)});
+test('failed and demo rounds give no reward',()=>{assert.equal(captureReward({...stats(),win:false}).total,0);assert.equal(captureReward({...stats(),demo:true}).total,0)});
+test('invalid stats cannot mint XP',()=>{for(const correct of [NaN,Infinity,-1,1.5,'90'])assert.equal(captureReward(stats(correct)).total,0)});
+test('accuracy not rounded for rewards',()=>assert.equal(captureReward(stats(969,31)).total,25));
+test('level boundaries and terminal level',()=>{assert.equal(levelForXP(59).level,1);assert.equal(levelForXP(60).level,2);assert.equal(levelForXP(660).level,6);assert.equal(levelForXP(1000).nextThreshold,null)});
+test('award is idempotent',()=>{const first=awardCapture(normalizeProgress(null),'r1',stats());const second=awardCapture(first.progress,'r1',stats());assert.equal(first.progress.xp,25);assert.equal(second.progress.xp,25);assert.equal(second.reward.total,0);assert.equal(second.changed,false)});
+test('threshold unlocks and high XP unlock all reached items',()=>{const a=awardCapture(normalizeProgress({xp:50}),'r2',stats(97,3,20));assert.equal(a.progress.xp,85);assert.deepEqual(a.newlyUnlocked.map(i=>i.id).sort(),['hat-helmet','shoes-boots']);const b=normalizeProgress({xp:660});assert.equal(b.unlocked.length,21)});
+test('invalid storage and unknown or locked equipment use defaults',()=>{for(const raw of [null,[],{},'bad',{xp:-1},{xp:Infinity},{xp:'660'}])assert.equal(normalizeProgress(raw).xp,0);const a=normalizeProgress({xp:0,outfit:{...DEFAULT_OUTFIT,hat:'hat-helmet',eyes:'missing'}});assert.deepEqual(a.outfit,DEFAULT_OUTFIT)});
+test('round history bounded and unique',()=>{let p=normalizeProgress(null);for(let i=0;i<110;i++)p=awardCapture(p,'round'+i,stats()).progress;assert.equal(p.awardedRounds.length,100);assert.equal(p.awardedRounds[0],'round10')});
+test('cannot save a locked part',()=>assert.equal(canEquip({...DEFAULT_OUTFIT,hat:'hat-helmet'},normalizeProgress(null)).ok,false));
+test('storage failures are reported without throwing',()=>{const storage={getItem(){throw Error('denied')},setItem(){throw Error('quota')}};assert.equal(loadProgress(storage).xp,0);assert.equal(saveProgress(storage,normalizeProgress(null)).ok,false)});
+test('legacy keys untouched and valid save reloads',()=>{const data=new Map([['kc-best','{"home":3}'],['kc-settings','{"music":false}']]);const storage={getItem:k=>data.get(k),setItem:(k,v)=>data.set(k,v)};assert.equal(loadProgress(storage).xp,0);const p=normalizeProgress({xp:280,active:true,outfit:{...DEFAULT_OUTFIT,shirt:'shirt-jacket'}});assert.equal(saveProgress(storage,p).ok,true);assert.deepEqual(loadProgress(storage),p);assert.equal(data.get('kc-best'),'{"home":3}');assert.equal(data.get('kc-settings'),'{"music":false}')});
+test('corrupt JSON does not block boot',()=>assert.equal(loadProgress({getItem:()=>'{broken'}).xp,0));
