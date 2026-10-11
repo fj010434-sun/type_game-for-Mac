@@ -1,11 +1,12 @@
 // 键盘小警察 · 3D 版：游戏逻辑、HUD、声音
 import { World, COP_X, THIEF_X } from './world.js';
-import { loadProgress, saveProgress, canEquip, levelForXP } from './progression.mjs';
+import { loadProgress, saveProgress, canEquip, levelForXP, awardCapture } from './progression.mjs';
 import { createWardrobeUI } from './wardrobe-ui.js';
 import { SCENES, OFFICERS, validChoice } from './customization.js';
 let previews = null, wardrobe = null;
 const progressStorage={getItem:key=>localStorage.getItem(key),setItem:(key,value)=>localStorage.setItem(key,value)};
 let progress=loadProgress(progressStorage);
+const DEMO = new URLSearchParams(location.search).has('demo');
 
 // ---------- 关卡与难度 ----------
 const LESSONS = [
@@ -247,7 +248,7 @@ function startGame() {
   applyAppearance();
   hideAll();
   Object.assign(G, {
-    state: 'ready', timer: 2.99, gap: START_GAP, shown: START_GAP, idx: 0,
+    state: 'ready', roundId: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`, timer: 2.99, gap: START_GAP, shown: START_GAP, idx: 0,
     correct: 0, wrong: 0, combo: 0, maxCombo: 0, playTime: 0, resultShown: false,
     confetti: [], floats: [], stumble: 0, sprint: 0, snap: true,
     thiefSay: '嘿嘿，来追我呀！', thiefSayT: 3, copSay: '', copSayT: 0, sayCd: 6,
@@ -612,7 +613,20 @@ function showMenu() {
 }
 
 function showResult(win) {
+  if(G.resultShown)return;
   G.resultShown = true;
+  const awarded=awardCapture(progress,G.roundId,{win,correct:G.correct,wrong:G.wrong,maxCombo:G.maxCombo,demo:DEMO});
+  progress=awarded.progress;
+  const stored=awarded.changed?saveProgress(progressStorage,progress):{ok:true};
+  const summary=$('xpSummary');summary.replaceChildren();
+  if(DEMO) summary.textContent='演示模式 · 不计入经验与解锁';
+  else {
+    const reward=document.createElement('b');reward.textContent=win?`+${awarded.reward.total} 经验`:'本局未抓获 · 经验保持不变';summary.append(reward);
+    const details=document.createElement('div');details.textContent=win?`抓捕 20 + 正确率 ${awarded.reward.accuracyBonus} + 连击 ${awarded.reward.comboBonus}`:'继续练习，下次成功抓捕就能积攒经验。';summary.append(details);
+    const level=levelForXP(progress.xp),next=document.createElement('div');next.textContent=`Lv.${level.level} · 累计 ${progress.xp} 经验`+(level.nextThreshold?` · 距离升级还差 ${level.nextThreshold-progress.xp}`:' · 已达到最高等级');summary.append(next);
+    if(awarded.newlyUnlocked.length){const unlocked=document.createElement('div');unlocked.textContent='新解锁：'+awarded.newlyUnlocked.map(i=>i.label).join('、');summary.append(unlocked);}
+    if(!stored.ok){const error=document.createElement('div');error.className='xp-error';error.textContent=stored.error;summary.append(error);$('progressError').textContent=stored.error;}
+  }
   const total = G.correct + G.wrong;
   const acc = total ? G.correct / total : 0;
   const kpm = Math.round(G.correct / Math.max(G.playTime, 1) * 60);
@@ -726,7 +740,7 @@ async function boot() {
   const q = new URLSearchParams(location.search);
   if (q.get('demo')) {
     startGame();
-    const rate = +q.get('demo') || 3, ff = +(q.get('ff') || 0), miss = +(q.get('miss') || 0.1);
+    const rate = +q.get('demo') || 3, ff = +(q.get('ff') || 0), miss = +(q.get('miss') ?? 0.1);
     const typeOne = () => { if (G.state === 'play') hit(Math.random() < 1 - miss ? G.line[G.idx] : 'q'); };
     for (let t = 0, acc = 0; t < ff; t += 1 / 60) {
       update(1 / 60); world.update(1 / 60, worldState()); G.snap = false;
