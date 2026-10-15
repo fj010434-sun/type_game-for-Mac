@@ -3,6 +3,7 @@ import { World, COP_X, THIEF_X } from './world.js';
 import { loadProgress, saveProgress, canEquip, levelForXP, awardCapture } from './progression.mjs';
 import { createWardrobeUI } from './wardrobe-ui.js';
 import { SCENES, OFFICERS, validChoice } from './customization.js';
+import { CITY_MUSIC, scoreAt, playCityNote } from './city-music.mjs';
 let previews = null, wardrobe = null;
 const progressStorage={getItem:key=>localStorage.getItem(key),setItem:(key,value)=>localStorage.setItem(key,value)};
 let progress=loadProgress(progressStorage);
@@ -127,7 +128,8 @@ const SFX = {
 
 // 背景音乐：C–Am–F–G 的轻快追逐小调
 const Music = {
-  on: true, timer: null, step: 0, next: 0, bpm: 138,
+  on: true, timer: null, step: 0, next: 0, bpm: 138, theme: null,
+  setTheme(id) { if(this.theme===id)return;this.theme=id;this.bpm=CITY_MUSIC[id]?.bpm||138;this.step=0;if(AC)this.next=AC.currentTime+.16; },
   chords: [[48, 52, 55], [45, 48, 52], [41, 45, 48], [43, 47, 50]],
   lead: [0, 2, 1, 2, 0, 2, 1, 2],
   start() {
@@ -142,6 +144,10 @@ const Music = {
     while (this.next < AC.currentTime + 0.15) { this.play(this.step, this.next); this.next += sp; this.step++; }
   },
   play(step, t) {
+    if(CITY_MUSIC[this.theme]) {
+      for(const note of scoreAt(this.theme,step))playCityNote(AC,musicBus,note,t);
+      return;
+    }
     const when = t - AC.currentTime;
     const s16 = step % 16, chord = this.chords[Math.floor(step / 16) % 4];
     const f = m => 440 * Math.pow(2, (m - 69) / 12);
@@ -236,6 +242,8 @@ function makeLine() {
 }
 
 function applyAppearance() {
+  Music.setTheme(G.scene);
+  document.getElementById('cityMusic').textContent=CITY_MUSIC[G.scene]?.title||'经典追逐小调';
   world.setAppearance(G.scene, G.officer==='custom'?'classic':G.officer);
   if(G.officer==='custom')world.setCustomOutfit(progress.outfit);
   G.snap=true;
@@ -566,7 +574,7 @@ function saveSettings() { store('kc-settings', { lesson: G.lesson, diff: G.diff,
 
 function renderAppearance() {
   const officers=progress.active?[...OFFICERS,{id:'custom',name:'我的警察',note:'衣柜中的搭配'}]:OFFICERS;
-  for (const [id, items, field] of [['scenes', SCENES, 'scene'], ['officers', officers, 'officer']]) {
+  for (const [id, items, field] of [['scenes', [...SCENES.filter(s=>CITY_MUSIC[s.id]),...SCENES.filter(s=>!CITY_MUSIC[s.id])], 'scene'], ['officers', officers, 'officer']]) {
     const container = $(id); container.replaceChildren();
     for (const item of items) {
       const button = document.createElement('button'); button.type = 'button'; button.className = 'appearance-card';
@@ -574,10 +582,22 @@ function renderAppearance() {
       const img = document.createElement('img'); img.src = item.id==='custom'?wardrobe.thumbnail(progress.outfit):previews[id][item.id]; img.alt = ''; button.appendChild(img);
       const name = document.createElement('b'); name.textContent = item.name; button.appendChild(name);
       const note = document.createElement('small'); note.textContent = item.note; button.appendChild(note);
-      button.onclick = () => { audio(); SFX.select(); G[field] = item.id; if(field==='officer'&&item.id!=='custom'){progress={...progress,active:false};const stored=saveProgress(progressStorage,progress);$('progressError').textContent=stored.ok?'':stored.error;} saveSettings(); applyAppearance(); G.snap=true; renderAppearance(); };
+      button.onclick = () => {
+        const restoreFocus=document.activeElement===button;
+        audio(); Music.start(); Music.setLevel(.3); SFX.select(); G[field] = item.id;
+        if(field==='officer'&&item.id!=='custom'){
+          progress={...progress,active:false};const stored=saveProgress(progressStorage,progress);
+          $('progressError').textContent=stored.ok?'':stored.error;
+        }
+        saveSettings(); applyAppearance(); G.snap=true; renderAppearance();
+        if(restoreFocus)$(id).querySelector(`[data-id="${item.id}"]`).focus({preventScroll:true});
+      };
       container.appendChild(button);
     }
   }
+  requestAnimationFrame(()=>{
+    if(G.state==='menu')$('scenes').querySelector('[aria-pressed="true"]')?.scrollIntoView({block:'nearest',inline:'nearest'});
+  });
 }
 
 function renderMenu() {
@@ -706,7 +726,7 @@ window.addEventListener('keydown', e => {
 });
 
 // 给 Mac 外壳的自检读状态用
-window.__kcState = () => ({ xp:progress.xp, outfit:{...progress.outfit}, scene: G.scene, officer: G.officer, copVisible: !!world.cop?.root.parent && world.cop.root.visible, state: G.state, idx: G.idx, line: G.line, correct: G.correct, wrong: G.wrong, gap: +G.gap.toFixed(1), sfx: Object.keys(sfxBuf).length, audio: AC ? AC.state : 'none' });
+window.__kcState = () => ({ xp:progress.xp, outfit:{...progress.outfit}, scene: G.scene, musicTheme:Music.theme, officer: G.officer, copVisible: !!world.cop?.root.parent && world.cop.root.visible, state: G.state, idx: G.idx, line: G.line, correct: G.correct, wrong: G.wrong, gap: +G.gap.toFixed(1), sfx: Object.keys(sfxBuf).length, audio: AC ? AC.state : 'none' });
 
 // ---------- 主循环 ----------
 let last = performance.now();

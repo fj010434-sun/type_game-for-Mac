@@ -12,19 +12,24 @@
 
 ### 玩法
 - **3D 城市街道追逐**：three.js 渲染，有阳光阴影、楼房、红绿灯、路边停车。
-- **场景与警察选择**：城市街道、林间小镇、海滨大道；经典警察、巡逻警察、机动警察，菜单展示实际 3D 预览并记住选择。
+- **场景与警察选择**：新增大连、东京、巴黎、里约热内卢、纽约、马纳罗拉（意大利五渔村）、德累斯顿 7 个城市，保留城市街道、林间小镇、海滨大道。大连包含星海湾跨海大桥、星海广场、劳动公园足球及友好广场水晶球；德累斯顿包含圣母教堂、茨温格宫、森帕歌剧院。地标为低多边形艺术化布局。七城有不同路面（如里约草地、德累斯顿错缝砖石），并配有长椅、花坛、售货机、咖啡桌、消防栓、渔具等沿街细节。经典警察、巡逻警察、机动警察均可使用，菜单展示实际 3D 预览并记住选择，地点列表可横向滚动。
 - **警察衣柜与成长**：帽子、头发、脸型、眼睛、眉毛、鼻子、嘴、上衣、裤子、鞋共 10 类、31 件物品。抓获基础 20 经验，准确率与连击最多再加 15 经验；9 个等级逐步解锁。支持真实 3D 试穿、转身、近景和跑步预览，保存后用于追捕；取消保留原搭配。进度只存本机，失败或演示不给经验。
 - **指法提示**：屏幕下方的键盘按手指分颜色，下一个要按的键会闪，并提示「用左手食指按 F」。
 - **8 个关卡**：基准键、加上 G H、上排键、下排键、全部字母、英文单词、拼音音节、数字键。
 - **3 档速度**：🐢 慢慢跑（每分钟约 15 个字就能追上）、🐇 一般快、🚀 飞毛腿。
 - **反馈**：10 连击加速、按错小偷会嘲笑并拉开距离、抓到后撒彩纸和 1–3 星评价，每关记录最好成绩。
-- **声音**：按键音、脚步声、抓捕音效，加一首轻快的背景音乐（右上角 🔊 可关闭）。
+- **声音**：按键音、脚步声、抓捕音效，7 套随城市切换的原创合成配乐：大连五声流行、东京琴笛融合、巴黎手风琴圆舞曲、里约桑巴、纽约爵士放克、马纳罗拉曼陀铃民谣、德累斯顿室内乐。经典地点保留原曲，右上角 🔊 可关闭；音色为程序合成。
 
 操作：`←` `→` 选关卡，`1` `2` `3` 选速度，`Enter` 开始，`Esc` 暂停，`⌘F` 全屏。
 
 ![菜单](docs/screenshot-menu.png)
 
 ![三套警察换装形象](docs/wardrobe-expansion-review/preview.png)
+
+### 1.2.0 新增内容
+七座城市、七套原创合成配乐和不同路面现已加入。大连有跨海大桥、星海广场、红白大足球和水晶球；德累斯顿有圣母教堂、茨温格宫及森帕歌剧院。沿街增加花坛、长椅、咖啡桌、售货机等细节，里约使用草地，德累斯顿使用错缝砖石。
+
+![里约草地与德累斯顿砖石](docs/streets-review/preview.png)
 
 ### 下载安装
 从本仓库 [Releases](https://github.com/fj010434-sun/type_game-for-Mac/releases) 下载 `KeyboardCop-<版本>-macos-universal.zip`，解压后把 `键盘小警察.app` 拖进「应用程序」。支持 Apple 芯片和 Intel Mac，需要 macOS 13.3 及以上，不需要安装 Xcode。
@@ -44,6 +49,9 @@
 - `web/game.js`：关卡、词库、难度、界面和声音。比如在 `LESSONS` 里加一组课本单词。
 - `web/world.js`：3D 街道、角色、配件、镜头和预览。
 - `web/customization.js`：场景和警察选项。
+- `web/city-world.js`：七城建筑、地标、环境色、沿街小物和共享模型。
+- `web/city-surfaces.js`：七城离线路面纹理与人行道材质。
+- `web/city-music.mjs`：原创乐谱、节奏和离线音色合成。
 - `App/main.swift`：Mac 窗口外壳（WKWebView，通过 `app://` 加载 `web/` 目录）。
 
 想在浏览器里边改边看，可以运行 `python3 devserver.py`，然后打开 http://localhost:8765 。
@@ -52,7 +60,7 @@
 
 先运行 `python3 devserver.py`，另一个终端运行 `node tests/customization.cjs` 和 `node tests/scene-combinations.cjs`（需要 Playwright 和 Google Chrome；可通过 `PLAYWRIGHT_PATH` 指定 Playwright 安装路径）。覆盖选择保存、反复切换、警察可见性、暂停和抓获流程，以及三种场景与三种警察的全部九种组合。
 
-新增换装验证可执行 `BASE_URL=http://localhost:8765 ./tests/run-all.sh`，串行运行素材检查、21 项成长与素材单元测试和 10 组浏览器流程。无需网络资源，测试依赖 Playwright 和 Google Chrome。测试截图写入 `docs/wardrobe-review/`。
+完整验证可执行 `BASE_URL=http://localhost:8765 ./tests/run-all.sh`，串行运行素材检查、23 项单元测试和 14 个浏览器检查脚本。覆盖换装、成长、七城 × 三种警察的 21 组组合、七城保存与配乐联动、音频离线渲染、地标回收及路面净空。无需网络资源，测试依赖 Playwright 和 Google Chrome。测试截图写入 `docs/wardrobe-review/`。
 
 原生自检：构建后设置 `KC_SELFTEST` 为已存在的输出目录，启动 `dist/键盘小警察.app/Contents/MacOS/KeyboardCop`；再加 `KC_WARDROBE_TEST=1` 可检查试穿、取消、保存及实际按键抓捕。自检使用临时存储，不修改日常玩家进度。详见 [换装验证记录](docs/wardrobe-review/verification.md)。
 
@@ -60,7 +68,8 @@
 
 A small macOS typing game for kids. A thief has stolen a gem. Every correct key moves the little cop forward, combos make him sprint, and when he catches up the thief is caught.
 
-- 3D chase through a city street (three.js), with colour-coded on-screen keyboard and finger hints
+- Seven city themes with distinct roads, landmarks and original synthesized music, plus three classic locations
+- 3D chase (three.js), with colour-coded on-screen keyboard and finger hints
 - 8 lessons (home row → full alphabet → English words → pinyin → numbers) and 3 thief speeds
 - Combo boosts, star ratings, best-score memory, sound effects and background music
 

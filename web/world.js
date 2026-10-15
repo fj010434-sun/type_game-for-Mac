@@ -1,5 +1,7 @@
 // 3D 街道世界：Kenney CC0 模型 + three.js
 import * as THREE from 'three';
+import { CITY_PALETTES, buildCityChunk } from './city-world.js';
+import { citySurface } from './city-surfaces.js';
 import { createWardrobeCharacter, loadWardrobeAssets, disposeCharacterSkeletons } from './wardrobe-character.js';
 import { SCENES, OFFICERS, validChoice } from './customization.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -84,10 +86,10 @@ export class World {
     this.ground = ground; this.walkMat = walkMat;
   }
 
-  makeSky() {
+  makeSky(top='#4aa8ff', bottom='#e4f4ff') {
     const c = document.createElement('canvas'); c.width = 4; c.height = 256;
     const g = c.getContext('2d').createLinearGradient(0, 0, 0, 256);
-    g.addColorStop(0, '#4aa8ff'); g.addColorStop(0.55, '#a8d8ff'); g.addColorStop(1, '#e4f4ff');
+    g.addColorStop(0, top); g.addColorStop(1, bottom);
     const x = c.getContext('2d'); x.fillStyle = g; x.fillRect(0, 0, 4, 256);
     const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
     return tex;
@@ -177,11 +179,16 @@ export class World {
       this.theme = scene;
       for (const g of this.chunks.values()) this.scene.remove(g);
       this.chunks.clear();
+      const palette=CITY_PALETTES[scene];
+      this.scene.background.dispose();
+      this.scene.background=this.makeSky(palette?'#'+palette.sky.toString(16).padStart(6,'0'):undefined,palette?'#'+palette.fog.toString(16).padStart(6,'0'):undefined);
       this.ground.material.color.set(scene === 'coast' ? 0xe9d6a8 : scene === 'forest' ? 0x91b873 : 0x8fd16a);
       this.sun.color.set(scene === 'forest' ? 0xffe6bc : 0xfff4e0);
       this.hemi.groundColor.set(scene === 'forest' ? 0x829265 : 0x8a9a6a);
       this.walkMat.color.set(scene === 'coast' ? 0xf3e8ce : scene === 'forest' ? 0xd6c8a8 : 0xeee3cf);
       this.scene.fog.color.set(scene === 'coast' ? 0xc7eced : scene === 'forest' ? 0xd9e8ce : 0xd4ecff);
+      this.walkMat.map=citySurface(scene)?.walkMap||null;this.walkMat.needsUpdate=true;
+      if(palette){this.walkMat.color.set(0xffffff);this.ground.material.color.set(palette.ground);this.scene.fog.color.set(palette.fog);this.sun.color.set(palette.sun);}
     }
     if (this.cop && officer !== this.officer) {
       this.retireCop();
@@ -473,6 +480,7 @@ export class World {
   }
 
   buildChunk(i) {
+    if(CITY_PALETTES[this.theme])return buildCityChunk(this,i,this.theme);
     if (this.theme === 'coast') return this.buildCoastChunk(i);
     if (this.theme === 'forest') return this.buildForestChunk(i);
     const g = new THREE.Group();
@@ -537,7 +545,7 @@ export class World {
   updateChunks(camDist) {
     const first = Math.floor(camDist / TILE) - 3, last = first + 34;
     for (const [i, g] of this.chunks) {
-      if (i < first || i > last) { this.scene.remove(g); this.chunks.delete(i); }
+      if ((i < first && camDist > (g.userData.retainUntilDistance ?? -Infinity)) || i > last) { this.scene.remove(g); this.chunks.delete(i); }
     }
     for (let i = first; i <= last; i++) if (!this.chunks.has(i)) this.chunks.set(i, this.buildChunk(i));
   }

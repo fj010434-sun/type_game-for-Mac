@@ -63,9 +63,14 @@
   #menu .lesson .icon { font-size: 23px; }
   #menu .lesson .name { font-size: 16px; }
   #menu .lesson .stars { min-height: 8px; font-size: 13px; }
-  .appearance-layout { display:grid; grid-template-columns: 1fr 1fr; gap:20px; text-align:left; }
+  .appearance-layout { display:grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap:20px; text-align:left; }
   .appearance-options { display:flex; gap:9px; }
   .appearance-card { flex:1; min-width:0; padding:0 0 8px; border:2px solid #e3e9f7; background:#f7f9ff; border-radius:14px; overflow:hidden; cursor:pointer; color:var(--ink); font-family:inherit; transition:transform .15s; }
+  #scenes { overflow-x:auto; padding:3px 3px 8px; scroll-snap-type:x proximity; scrollbar-width:thin; }
+  #scenes .appearance-card { flex:0 0 148px; scroll-snap-align:start; }
+  .appearance-card:focus-visible { outline:3px solid var(--blue); outline-offset:2px; }
+  #cityMusic { color:var(--muted); font-size:11px; min-height:16px; margin-top:3px; }
+  @media(prefers-reduced-motion:reduce) { .appearance-card { transition:none; } }
   .appearance-card:hover { transform:translateY(-2px); }
   .appearance-card[aria-pressed="true"] { border-color:var(--blue); background:#eaf1ff; box-shadow:0 3px 0 var(--blue-dark); }
   .appearance-card img { display:block; width:100%; height:88px; object-fit:cover; }
@@ -98,7 +103,7 @@
     <div class="section-title">① 选择关卡</div>
     <div class="lessons" id="lessons"></div>
     <div class="appearance-layout">
-      <div><div class="section-title">② 追捕地点</div><div class="appearance-options" id="scenes"></div></div>
+      <div><div class="section-title">② 追捕地点 · 7 座城市与 3 个经典场景 ↔</div><div class="appearance-options" id="scenes" role="group" aria-label="追捕地点，横向滚动查看更多城市"></div><div id="cityMusic"></div></div>
       <div><div class="section-title">③ 选择警察</div><div class="appearance-options" id="officers"></div></div>
     </div>
     <div class="section-title">④ 小偷跑多快</div>

@@ -6,7 +6,7 @@ const assert = require('node:assert/strict');
  const errors=[]; page.on('pageerror',e=>errors.push(e.message));
  await page.goto(process.env.BASE_URL || 'http://127.0.0.1:8765');
  await page.waitForSelector('#menu.show');
- assert.equal(await page.locator('#scenes button').count(),3,'three selectable scenes');
+ assert.equal(await page.locator('#scenes button').count(),10,'seven cities and three classic scenes');
  await page.getByRole('button',{name:'海滨大道',exact:false}).click();
  await page.getByRole('button',{name:'机动警察',exact:false}).click();
  await page.reload(); await page.waitForSelector('#menu.show');

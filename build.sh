@@ -2,7 +2,7 @@
 # 打包「键盘小警察」为 macOS 应用：./build.sh [--install] [--release]
 set -euo pipefail
 cd "$(dirname "$0")"
-VERSION="1.1.0"
+VERSION="1.2.0"
 APP="dist/键盘小警察.app"
 rm -rf "$APP" build && mkdir -p build "$APP/Contents/MacOS" "$APP/Contents/Resources"
 
@@ -33,7 +33,7 @@ cat > "$APP/Contents/Info.plist" <<EOF
   <key>CFBundleIconFile</key><string>AppIcon</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleShortVersionString</key><string>$VERSION</string>
-  <key>CFBundleVersion</key><string>2</string>
+  <key>CFBundleVersion</key><string>3</string>
   <key>LSMinimumSystemVersion</key><string>13.3</string>
   <key>LSApplicationCategoryType</key><string>public.app-category.kids-games</string>
   <key>NSHighResolutionCapable</key><true/>
